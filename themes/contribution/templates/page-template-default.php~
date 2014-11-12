@@ -1,0 +1,21 @@
+<?php
+    /*
+     Template Name:  Webberty Default Template
+    */
+?>
+<h1>Default page</h1>
+<?php
+
+ $amount    = '58';
+    $otherData = array (
+				'transactionReference' => mt_rand () ,
+				'orderId'              => mt_rand ()
+				);
+
+    do_action("WBB_RaboOmnikassa" ,$amount,  $otherData) ;
+
+
+ $data =  do_action("WBB_RaboOmnikassaResponse") ;
+	  print_r($data) ;
+
+?>

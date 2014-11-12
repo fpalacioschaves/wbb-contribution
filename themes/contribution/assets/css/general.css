@@ -1,0 +1,191 @@
+/* ==========================================================================
+   MAIN CSS FILE - idiomatic CSS
+   ========================================================================== */
+/**
+ * Read this carefully because it outlines a reasonable guide for our CSS
+ * Development.
+ *
+ *
+/* GENERAL PRINCIPLES
+   ========================================================================== */
+/**
+ * Part of being a good programmer on a successful project is realizing that
+ * writing code for yourself is a bad idea. Write your code for maximum clarity
+ * not for personal preference.
+ *
+ * Before you move css to this file use a different file to setup the coding
+ * until it is tested and works. Then you can move it to this file
+ *
+ * All code in any file should look like a single person typed it, even when
+ * more people are working in the files
+ *
+ * Strictly enforce the agreed-upon style in this document.
+ *
+ * If in doubt when deciding upon a style use existing patterns or discuss
+ * with the team.
+ *
+/* THE USE OF WHITESPACE
+   ========================================================================== */
+/**
+ * Only one style should exist across the entire source of your code-base.
+ * Always be consistent in your use of whitespace. Use whitespace to improve
+ * readability.
+ *
+ * Never mix spaces and tabs for indentation. Use soft indents (spaces)
+ *
+/* COMMENTS
+   ========================================================================== */
+/**
+ * Well commented code is extremely important. Take time to describe components,
+ * how they work, their limitations and the way they are constructed. Don't leave
+ * other team members guessing as to the purpose of your code.
+ *
+/* FORMAT
+   ========================================================================== */
+/**
+ * This code format must ensure that code is: easy to read; easy to clearly
+ * comment; minimizes the chance of accidentally introducing errors; and results
+ * in useful diffs and blames.
+ *
+ * Use one discrete selector per line in multiselector rulesets
+ *
+ * include a single space before the opening bracket of a ruleset
+ *
+ * Include one declaration per line in a declaration block
+ *
+ * Use one level of indentation for each declaration
+ *
+ * include a single space after the colon of a declaration
+ *
+ * Use uppercase complete hex values #FFFFFF not #fff or #FFF
+ *
+ * Use double quotes
+ *
+ * Where allowed avoid specifying units for zero-values
+ *
+ * Place the closing brace of a ruleset in the same column as the first character
+ *
+ * Seperate each ruleset by a blank line
+ */
+
+/* ==========================================================================
+   MAIN LAYOUT STYLES
+   ========================================================================== */
+/**
+ * Here you will find the main layout styles that are used through the website
+ *
+ * In this section the fonts, headings, font-stylesm list-styles, button styles
+ * are added
+ * 
+ * INDEX
+ * 
+ * FONTS
+ * HEADING
+ * PARAGRAPH
+ * LINKS
+ *
+ */
+
+/* FONTS
+   ========================================================================== */
+/**
+ * This section has all font styles used in the website
+ *
+ * The files are stored in /assets/fonts/ 
+ * for this site we use:
+ * 
+ * 
+ */
+
+/* HEADING
+   ========================================================================== */
+/**
+ * This section is used for all headings in the site
+ *
+ * Next to the normal h1,h2,h3 etc.. classes we will also use .h1,.h2,.h3 etc.. classes
+ * The usefulness of the .h* classes comes into play when the size of the typography
+ * in the design does not correlate with the semantically appropriate heading levels.
+ * By splitting the problem in two, we can cleanly solve for both.
+ * The first bit is the element/tag. The '<h*>' takes care of semantics, accessibility and SEO.
+ * The second bit is the class. The '.h*' takes care typographical hierarchy.
+ * the .title class will have the main visual semantice styling for all headings.
+ * If there is a custom style for a title use a good title name that tells something about
+ * the function of the heading (for example title-article)
+ *
+ * For reference see articles about Object-Oriented CSS
+ *
+ * http://www.stubbornella.org/content/2011/09/06/style-headings-using-html5-sections/
+ *
+ * http://csswizardry.com/2012/02/pragmatic-practical-font-sizing-in-css/
+ *
+ * https://groups.google.com/forum/#!topic/object-oriented-css/GE1uzU2Bu48/discussion
+ *
+ */
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+
+}
+
+h1, .h1 {
+    font-size: 65px;
+    line-height: 68px;
+}
+
+h2, .h2 {
+    font-size: 35px;
+    line-height: 40px;
+}
+
+h3, .h3 {
+    font-size: 32px;
+    line-height: 40px;
+}
+
+h4, .h4 {
+    font-size: 24px;
+    line-height: 28px
+}
+
+h5, .h5 {
+    font-size: 20px;
+    line-height: 35px;
+}
+
+h6, .h6 {
+    font-size: 16px;
+    line-height: 18px;
+}
+
+/* PARAGRAPH 
+   ========================================================================== /
+* 
+*  The main formattin for the paragraph overrides bootstrap
+*  It has the main font used on the site
+*  The fallback color 
+*  the main font-size
+* 
+*/
+
+p {
+    font-size: 14px;
+}
+
+/* LINK 
+   ========================================================================== /
+*
+*  The main formatting for the links overrides the bootstrap fallback and
+*  involves:
+*  the main fallback color for a link
+*  the main fallback text-decoration for a link
+*  the main fallback outline
+*/
+
+a {
+
+}
+
+a:active,
+a:hover,
+a:focus {
+
+}
