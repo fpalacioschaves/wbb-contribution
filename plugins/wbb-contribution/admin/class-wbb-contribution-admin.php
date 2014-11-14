@@ -47,17 +47,26 @@ class WBB_Contribution_Admin {
      * @var      string    $WBB_Contribution       The name of this plugin.
      * @var      string    $version    The version of this plugin.
      */
+    
+   
+    
+    
     public function __construct($WBB_Contribution, $version) {
 
         $this->WBB_Contribution = $WBB_Contribution;
         $this->version = $version;
+        
+       
+        
 
         add_action('admin_menu', array($this, 'register_contribution_menu_page'));
 
-        add_action( 'wp_ajax_login_option', array($this, 'login_option') );
-        add_action( 'wp_ajax_nopriv_login_option', array($this, 'login_option') );
+        add_action('wp_ajax_login_option', array($this, 'login_option'));
+        add_action('wp_ajax_nopriv_login_option', array($this, 'login_option'));
 
-        
+
+        add_action('wp_ajax_user_fields_option', array($this, 'user_fields_option'));
+        add_action('wp_ajax_nopriv_user_fields_option', array($this, 'user_fields_option'));
     }
 
     public function register_contribution_menu_page() {
@@ -118,23 +127,74 @@ class WBB_Contribution_Admin {
         wp_enqueue_script($this->WBB_Contribution . "-admin", plugin_dir_url(__FILE__) . 'js/wbb-contribution-admin.js', array('jquery'), $this->version, false);
 
         wp_localize_script(
-                  $this->WBB_Contribution . "-admin"
+                $this->WBB_Contribution . "-admin"
                 , 'MyAjax'
                 , array(
-                    // URL to wp-admin/admin-ajax.php to process the request
-                    'ajaxurl' => admin_url('admin-ajax.php')
+            // URL to wp-admin/admin-ajax.php to process the request
+            'ajaxurl' => admin_url('admin-ajax.php')
                 )
         );
     }
 
     public function login_option() {
-        
+
         $option = $_POST["login_option"];
-        $value  = $_POST["login_value"];
-        
+        $value = $_POST["login_value"];
+
         update_option($option, $value);
-        
+
         die();
+    }
+
+    public function user_fields_option() {
+
+        $option = $_POST["user_field_option"];
+        $value = $_POST["user_field_value"];
+
+        update_option($option, $value);
+
+        die();
+    }
+   public static $exclude_default_user_fields = array(
+            "admin_color",
+            "comment_shortcuts",
+            "dismissed_wp_pointers",
+            "rich_editing",
+            "session_tokens",
+            "show_admin_bar_front",
+            "show_welcome_panel",
+            "use_ssl",
+            "wp_capabilities",
+            "wp_dashboard_quick_press_last_post_id",
+            "wp_user_level"
+        );
+    
+    public static function read_user_fields() {
+       
+        
+        
+        global $wpdb;
+        $user_fields = $wpdb->get_results("SELECT DISTINCT meta_key FROM wp_usermeta");
+        //print_r(self::$exclude_default_user_fields) ;
+        echo "<table>";
+        foreach ($user_fields as $user_field) {
+            // Chequeamos si ese campo está en los campos que excluimos por defecto
+
+            $meta_key = $user_field->meta_key;
+            if (!in_array($meta_key, self::$exclude_default_user_fields)) {
+                $get_option = (get_option($meta_key) === "true" ) ? 'checked' : '';
+                echo "<tr>";
+                echo "<td>$meta_key</td>";
+                echo "<td>
+                    <div class='slideThree js-user-meta-checkbox'>	
+                        <input type='checkbox' $metakey id='$meta_key' name='$meta_key'" . $get_option . " />
+                        <label for='$meta_key'></label>
+                    </div>
+                </td>";
+                echo "</tr>";
+            }
+        }
+        echo "</table>";
     }
 
 }
