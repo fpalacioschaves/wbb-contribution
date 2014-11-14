@@ -19,7 +19,7 @@
                     <td>
                         
                         <div class="slideThree js-exist-user-username">	
-                            <input type="checkbox" value="None" id="username_exist_user" name="username_exist_user" />
+                            <input type="checkbox" value="None" id="username_exist_user" class="js-import-option" name="username_exist_user" />
                             <label for="username_exist_user"></label>
                         </div>
                         
@@ -30,7 +30,7 @@
                     <td>
                         
                         <div class="slideThree js-exist-user-email">	
-                            <input type="checkbox" value="None" id="email_exist_user" name="email_exist_user" />
+                            <input type="checkbox" value="None" id="email_exist_user" class="js-import-option" name="email_exist_user" />
                             <label for="email_exist_user"></label>
                         </div>
                         
@@ -47,7 +47,7 @@
                     <td>
                         
                         <div class="slideThree js-exist-overwrite">	
-                            <input type="checkbox" value="None" id="overwrite_exist_user" name="overwrite_exist_user" />
+                            <input type="checkbox" value="None" id="overwrite_exist_user" class="js-import-option" name="overwrite_exist_user" />
                             <label for="overwrite_exist_user"></label>
                         </div>
                         
@@ -63,11 +63,13 @@
 
 <div class="user-results-table-container">
     
-    <table class="js-user-results-table user-results-table">
-
-        <thead></thead>
-        <tbody></tbody>
-
-    </table>
+    <p>You must order the user,mail and password like: 
+        [1] username [2] email [3] password (if pass is empty, will be generated)
+    </p>
+    
+    <table class="js-user-results-table user-results-table"></table>
     
 </div>
+
+
+<button class="js-run-import">Start the import!</button>

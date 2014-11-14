@@ -46,8 +46,6 @@
                 data.append("action", "read_csv_user_file");
                 data.append("file", file);
                 
-              console.log("file");
-              console.log(file);
             $.ajax({
                 url: MyAjax.ajaxurl,
                 type: "POST",
@@ -81,6 +79,52 @@
             });
             
         });
+
+        $(document).on("click", ".js-run-import", function(){
+            
+            //Get options.
+            
+            var options = $(".js-import-option:checked");
+            var options_to_send = {};
+            
+            $.each(options, function(i,val){
+                
+                options_to_send.push( $(val).attr("id") );
+                
+            });
+            
+            //All users imported.
+            
+            var users_to_import = $(".js-user-results-table tbody tr");
+            
+            $.each(users_to_import, function(i, val){
+               
+                var user_td = $("td", val);
+                
+                console.log( $.trim( $(user_td[0]).html() ) );
+                
+            });
+
+
+            /*
+            //Send options and file.
+            $.ajax({
+                url: MyAjax.ajaxurl,
+                type: "POST",
+                contentType: false,
+                data: data,
+                dataType: "json",
+                processData: false,
+                cache: false,
+                success: function (response) {
+
+                    
+
+                }
+            });
+            */
+        });
+
 
     });
 })(jQuery);

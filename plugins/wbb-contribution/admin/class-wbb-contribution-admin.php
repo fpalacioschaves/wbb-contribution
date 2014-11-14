@@ -55,12 +55,13 @@ class WBB_Contribution_Admin {
         add_action('admin_menu', array($this, 'register_contribution_menu_page'));
 
         add_action('wp_ajax_login_option', array($this, 'login_option'));
-        add_action('wp_ajax_nopriv_login_option', array($this, 'login_option'));
 
 
-        //LOAD FILE TO IMPORT & EXPORT.
+        //LOAD FILE TO IMPORT.
         add_action('wp_ajax_read_csv_user_file', array($this, 'read_csv_user_file'));
-        add_action('wp_ajax_nopriv_read_csv_user_file', array($this, 'read_csv_user_file'));
+        
+        //RUN THE IMPORT
+        add_action('wp_ajax_run_the_import', array($this, 'run_the_import'));
     }
 
     public function register_contribution_menu_page() {
@@ -175,4 +176,43 @@ class WBB_Contribution_Admin {
         die();
     }
 
+    public function run_the_import()
+    {
+        /*
+        $uploaded_file = $_FILES["file"];
+
+        $file_handle = fopen($uploaded_file["tmp_name"], "r");
+
+        $result = array();
+        
+        while (!feof($file_handle)) {
+
+            $line_of_text = fgetcsv($file_handle, 1024);
+
+            $line_len = count($line_of_text);
+            
+            $new_line = "<tr>";
+            
+            for($l = 0 ; $l < $line_len; $l++)
+            {
+                $new_line .= "<td> $line_of_text[$l] </td>";
+            }
+            
+            $new_line .= "</tr>";
+            
+            array_push( $result, $new_line );
+            
+        }
+
+        fclose($file_handle);
+
+        echo json_encode( $result );
+         */
+        
+        print_r( $_POST["options"] );
+
+        die();
+        
+    }
+    
 }
