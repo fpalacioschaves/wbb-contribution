@@ -209,7 +209,12 @@ class WBB_Contribution_Admin {
             "use_ssl",
             "wp_capabilities",
             "wp_dashboard_quick_press_last_post_id",
-            "wp_user_level"
+            "wp_user_level",
+       "managenav-menuscolumnshidden",
+       "metaboxhidden_nav-menus",
+       "nav_menu_recently_edited",
+       "wp_user-settings",
+       "wp_user-settings-time"
         );
     
     public static function read_user_fields() {
