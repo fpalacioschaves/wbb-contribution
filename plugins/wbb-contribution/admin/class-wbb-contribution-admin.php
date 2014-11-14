@@ -257,30 +257,30 @@ class WBB_Contribution_Admin {
         
         $user_id = get_user_by( 'email', $email );
         
-        
         if( $user_id )
         {
             
             echo "lightblue";
-            
+            $userID = $user_id->ID;
         }
         else
         {
             $user_id   = wp_create_user( $username, $password, $email );
             echo "lightgreen";
+            $new_user_flag = true;
+            $userID = $user_id;
         }
 
-        if( $_POST["user"]["overwrite"] )
+        if( $_POST["user"]["overwrite"] || $new_user_flag )
         {
-            //OVER
+            //user meta loop
+            foreach ($_POST["user"]["user_meta"] as $meta_key => $meta_value) {
+
+                update_user_meta($userID, $meta_key, $meta_value);
+
+            }
         }
         
-        //user meta loop
-        foreach ($_POST["user"]["user_meta"] as $meta_key => $meta_value) {
-            
-            update_user_meta($user_id->ID, $meta_key, $meta_value);
-            
-        }
         
         die();
     }
