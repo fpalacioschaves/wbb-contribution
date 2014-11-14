@@ -106,6 +106,7 @@ class WBB_Contribution_Admin {
          * class.
          */
         wp_enqueue_style($this->WBB_Contribution . "-jqueryui", '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css');
+        wp_enqueue_style($this->WBB_Contribution."jquerysortables", plugin_dir_url(__FILE__) . 'css/dragtable.css', array(), $this->version, 'all');
         wp_enqueue_style($this->WBB_Contribution, plugin_dir_url(__FILE__) . 'css/wbb-contribution-admin.css', array(), $this->version, 'all');
     }
 
