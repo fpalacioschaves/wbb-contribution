@@ -114,7 +114,9 @@ class WBB_Contribution_Public {
                     include("views/my_account_extended.php");
                     }
                 }
+                
             }
+            include("views/my_account_send_button.php");
         } else {
             echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
         }
