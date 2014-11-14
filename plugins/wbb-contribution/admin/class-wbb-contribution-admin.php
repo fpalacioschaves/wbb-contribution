@@ -226,15 +226,8 @@ class WBB_Contribution_Admin {
             $meta_key = $user_field->meta_key;
             if (!in_array($meta_key, self::$exclude_default_user_fields)) {
                 $get_option = (get_option($meta_key) === "true" ) ? 'checked' : '';
-                echo "<tr>";
-                echo "<td>$meta_key</td>";
-                echo "<td>
-                    <div class='slideThree js-user-meta-checkbox'>	
-                        <input type='checkbox' $metakey id='$meta_key' name='$meta_key'" . $get_option . " />
-                        <label for='$meta_key'></label>
-                    </div>
-                </td>";
-                echo "</tr>";
+                include("views/user_meta_fields.php");
+                
             }
         }
         echo "</table>";
