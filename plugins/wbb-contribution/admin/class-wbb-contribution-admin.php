@@ -67,8 +67,8 @@ class WBB_Contribution_Admin {
         //LOAD FILE TO IMPORT.
         add_action('wp_ajax_read_csv_user_file', array($this, 'read_csv_user_file'));
         
-        //RUN THE IMPORT
-        add_action('wp_ajax_run_the_import', array($this, 'run_the_import'));
+        //NEW USER  (FIRST CHECK IF EXIST.)
+        add_action('wp_ajax_wbb_contribution_new_user', array($this, 'wbb_contribution_new_user'));
 
         //paco functions
         add_action('wp_ajax_user_fields_option', array($this, 'user_fields_option'));
@@ -169,16 +169,23 @@ class WBB_Contribution_Admin {
 
             $line_len = count($line_of_text);
             
-            $new_line = "<tr>";
-            
-            for($l = 0 ; $l < $line_len; $l++)
+            if( $line_len > 1 )
             {
-                $new_line .= "<td> $line_of_text[$l] </td>";
+                
+                $new_line = "<tr>";
+
+                for($l = 0 ; $l < $line_len; $l++)
+                {
+                    $new_line .= "<td>$line_of_text[$l]</td>";
+                }
+
+                $new_line .= "</tr>";
+
+                array_push( $result, $new_line );
+                
             }
             
-            $new_line .= "</tr>";
             
-            array_push( $result, $new_line );
             
         }
 
@@ -234,43 +241,49 @@ class WBB_Contribution_Admin {
         echo "</table>";
     }
 
-    public function run_the_import()
-    {
-        /*
-        $uploaded_file = $_FILES["file"];
-
-        $file_handle = fopen($uploaded_file["tmp_name"], "r");
-
-        $result = array();
         
-        while (!feof($file_handle)) {
 
-            $line_of_text = fgetcsv($file_handle, 1024);
-
-            $line_len = count($line_of_text);
+    function wbb_contribution_new_user()
+    {
+        
+        $username   = $_POST["user"]["user_data"]["username"];
+        $email      = $_POST["user"]["user_data"]["email"];
+        $password   = $_POST["user"]["user_data"]["password"];
+        
+        if( $password === "" )
+        {
+            $password = wp_generate_password(12, true);
+        }
+        
+        $user_id = get_user_by( 'email', $email );
+        
+        
+        if( $user_id )
+        {
             
-            $new_line = "<tr>";
-            
-            for($l = 0 ; $l < $line_len; $l++)
-            {
-                $new_line .= "<td> $line_of_text[$l] </td>";
-            }
-            
-            $new_line .= "</tr>";
-            
-            array_push( $result, $new_line );
+            echo "lightblue";
             
         }
+        else
+        {
+            $user_id   = wp_create_user( $username, $password, $email );
+            echo "lightgreen";
+        }
 
-        fclose($file_handle);
-
-        echo json_encode( $result );
-         */
+        if( $_POST["user"]["overwrite"] )
+        {
+            //OVER
+        }
         
-        print_r( $_POST["options"] );
-
+        //user meta loop
+        foreach ($_POST["user"]["user_meta"] as $meta_key => $meta_value) {
+            
+            update_user_meta($user_id->ID, $meta_key, $meta_value);
+            
+        }
+        
         die();
-        
     }
+    
     
 }

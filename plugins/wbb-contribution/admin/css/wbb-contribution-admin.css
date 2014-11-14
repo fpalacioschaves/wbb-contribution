@@ -105,3 +105,7 @@
     
     cursor: move;
 }
+
+.user-results-table-container tr{
+    transition: 0.25s linear;
+}
