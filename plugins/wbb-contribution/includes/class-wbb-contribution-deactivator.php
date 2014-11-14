@@ -30,7 +30,16 @@ class WBB_Contribution_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
-
+            WBB_Contribution_Deactivator::delete_page_my_account();
+            
 	}
+        
+        
+        // Delete My Account page
+        public function delete_page_my_account(){
+             $page = get_page_by_title( 'My account' );
+             $page_id = $page->ID;
+             wp_delete_post($page_id);
+        }
 
 }

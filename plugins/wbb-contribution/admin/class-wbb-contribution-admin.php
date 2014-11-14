@@ -47,10 +47,17 @@ class WBB_Contribution_Admin {
      * @var      string    $WBB_Contribution       The name of this plugin.
      * @var      string    $version    The version of this plugin.
      */
+    
+   
+    
+    
     public function __construct($WBB_Contribution, $version) {
 
         $this->WBB_Contribution = $WBB_Contribution;
         $this->version = $version;
+        
+       
+        
 
         add_action('admin_menu', array($this, 'register_contribution_menu_page'));
 
@@ -62,6 +69,9 @@ class WBB_Contribution_Admin {
         
         //RUN THE IMPORT
         add_action('wp_ajax_run_the_import', array($this, 'run_the_import'));
+
+        //paco functions
+        add_action('wp_ajax_user_fields_option', array($this, 'user_fields_option'));
     }
 
     public function register_contribution_menu_page() {
@@ -138,6 +148,7 @@ class WBB_Contribution_Admin {
 
         update_option($option, $value);
 
+
         die();
     }
 
@@ -173,7 +184,52 @@ class WBB_Contribution_Admin {
 
         echo json_encode( $result );
 
+
         die();
+    }
+
+    public function user_fields_option() {
+
+        $option = $_POST["user_field_option"];
+        $value = $_POST["user_field_value"];
+
+        update_option($option, $value);
+
+        die();
+    }
+   public static $exclude_default_user_fields = array(
+            "admin_color",
+            "comment_shortcuts",
+            "dismissed_wp_pointers",
+            "rich_editing",
+            "session_tokens",
+            "show_admin_bar_front",
+            "show_welcome_panel",
+            "use_ssl",
+            "wp_capabilities",
+            "wp_dashboard_quick_press_last_post_id",
+            "wp_user_level"
+        );
+    
+    public static function read_user_fields() {
+       
+        
+        
+        global $wpdb;
+        $user_fields = $wpdb->get_results("SELECT DISTINCT meta_key FROM wp_usermeta");
+        //print_r(self::$exclude_default_user_fields) ;
+        echo "<table>";
+        foreach ($user_fields as $user_field) {
+            // Chequeamos si ese campo está en los campos que excluimos por defecto
+
+            $meta_key = $user_field->meta_key;
+            if (!in_array($meta_key, self::$exclude_default_user_fields)) {
+                $get_option = (get_option($meta_key) === "true" ) ? 'checked' : '';
+                include("views/user_meta_fields.php");
+                
+            }
+        }
+        echo "</table>";
     }
 
     public function run_the_import()

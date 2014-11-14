@@ -31,6 +31,38 @@
                 console.log(response);
             });
         });
+        
+        
+        
+        
+        $(".js-user-meta-checkbox input").change(function(){
+            
+            var user_field_option = $(this).attr("id");
+            var user_field_value = "";
+            
+            if( this.checked )
+            {
+                user_field_value = "true";
+            }
+            else
+            {
+                user_field_value = "false";
+            }
+            
+            var data = {
+                  action:               "user_fields_option"
+                , user_field_option:    user_field_option
+                , user_field_value:     user_field_value
+            };
+            
+            $.post(MyAjax.ajaxurl, data, function(response){
+               
+                console.log(response);
+                
+            });
+            
+            
+        });
 
 
         $(document).on("click", ".js-trigger-upload-user-file", function () {
