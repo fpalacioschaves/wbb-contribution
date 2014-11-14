@@ -12,49 +12,49 @@
 
     <ul>
         <li>Value to check if users exist.
-            
+
             <table>
                 <tr>
                     <td>Username</td>
                     <td>
-                        
+
                         <div class="slideThree js-exist-user-username">	
-                            <input type="checkbox" value="None" id="username_exist_user" name="username_exist_user" />
+                            <input type="checkbox" value="None" id="username_exist_user" class="js-import-option" name="username_exist_user" />
                             <label for="username_exist_user"></label>
                         </div>
-                        
+
                     </td>
                 </tr>
                 <tr>
                     <td>E-Mail</td>
                     <td>
-                        
+
                         <div class="slideThree js-exist-user-email">	
-                            <input type="checkbox" value="None" id="email_exist_user" name="email_exist_user" />
+                            <input type="checkbox" value="None" id="email_exist_user" class="js-import-option" name="email_exist_user" />
                             <label for="email_exist_user"></label>
                         </div>
-                        
+
                     </td>
                 </tr>
             </table>
-            
+
         </li>
         <li>
-            
+
             <table>
                 <tr>
                     <td>Overwrite if user exist?</td>
                     <td>
-                        
+
                         <div class="slideThree js-exist-overwrite">	
-                            <input type="checkbox" value="None" id="overwrite_exist_user" name="overwrite_exist_user" />
+                            <input type="checkbox" value="None" id="overwrite_exist_user" class="js-import-option" name="overwrite_exist_user" />
                             <label for="overwrite_exist_user"></label>
                         </div>
-                        
+
                     </td>
                 </tr>
             </table>
-            
+
         </li>
 
     </ul>
@@ -62,12 +62,55 @@
 </div>
 
 <div class="user-results-table-container">
-    
-    <table class="js-user-results-table user-results-table">
 
-        <thead></thead>
-        <tbody></tbody>
+    <p>You must order the user,mail and password like: 
+        [1] username [2] email [3] password (if pass is empty, will be generated)
+    </p>
 
+    <table id="js-user-results-table" class="js-user-results-table user-results-table">
+        <thead>
+            <tr>
+                <th>Titulo 1</th>
+                <th>2222222</th>
+                <th>333333</th>
+                <th>444444</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+                <td>aaaaaaaaa</td>
+                <td>WWWWWWWWW</td>
+            </tr>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+                <td>aaaaaaaaa</td>
+                <td>WWWWWWWWW</td>
+            </tr>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+                <td>aaaaaaaaa</td>
+                <td>WWWWWWWWW</td>
+            </tr>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+                <td>aaaaaaaaa</td>
+                <td>WWWWWWWWW</td>
+            </tr>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+                <td>aaaaaaaaa</td>
+                <td>WWWWWWWWW</td>
+            </tr>
+        </tbody>
     </table>
-    
+
 </div>
+
+
+<button class="js-run-import">Start the import!</button>

@@ -62,17 +62,16 @@ class WBB_Contribution_Admin {
         add_action('admin_menu', array($this, 'register_contribution_menu_page'));
 
         add_action('wp_ajax_login_option', array($this, 'login_option'));
-        add_action('wp_ajax_nopriv_login_option', array($this, 'login_option'));
 
 
-
-        add_action('wp_ajax_user_fields_option', array($this, 'user_fields_option'));
-        add_action('wp_ajax_nopriv_user_fields_option', array($this, 'user_fields_option'));
-
-        //LOAD FILE TO IMPORT & EXPORT.
+        //LOAD FILE TO IMPORT.
         add_action('wp_ajax_read_csv_user_file', array($this, 'read_csv_user_file'));
-        add_action('wp_ajax_nopriv_read_csv_user_file', array($this, 'read_csv_user_file'));
+        
+        //RUN THE IMPORT
+        add_action('wp_ajax_run_the_import', array($this, 'run_the_import'));
 
+        //paco functions
+        add_action('wp_ajax_user_fields_option', array($this, 'user_fields_option'));
     }
 
     public function register_contribution_menu_page() {
@@ -107,6 +106,7 @@ class WBB_Contribution_Admin {
          * class.
          */
         wp_enqueue_style($this->WBB_Contribution . "-jqueryui", '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css');
+        wp_enqueue_style($this->WBB_Contribution."jquerysortables", plugin_dir_url(__FILE__) . 'css/dragtable.css', array(), $this->version, 'all');
         wp_enqueue_style($this->WBB_Contribution, plugin_dir_url(__FILE__) . 'css/wbb-contribution-admin.css', array(), $this->version, 'all');
     }
 
@@ -130,6 +130,7 @@ class WBB_Contribution_Admin {
         //wp_enqueue_script( $this->WBB_Contribution."-jquery", '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js' );
         wp_enqueue_script($this->WBB_Contribution . "-jquery", "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js");
         wp_enqueue_script($this->WBB_Contribution . "-jqueryui", '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js');
+        wp_enqueue_script($this->WBB_Contribution . "-jquerysortables", plugin_dir_url(__FILE__) . 'js/jquery.dragtable.js', array('jquery'), $this->version, false);
         wp_enqueue_script($this->WBB_Contribution . "-admin", plugin_dir_url(__FILE__) . 'js/wbb-contribution-admin.js', array('jquery'), $this->version, false);
 
         wp_localize_script(
@@ -238,4 +239,43 @@ class WBB_Contribution_Admin {
         echo "</table>";
     }
 
+    public function run_the_import()
+    {
+        /*
+        $uploaded_file = $_FILES["file"];
+
+        $file_handle = fopen($uploaded_file["tmp_name"], "r");
+
+        $result = array();
+        
+        while (!feof($file_handle)) {
+
+            $line_of_text = fgetcsv($file_handle, 1024);
+
+            $line_len = count($line_of_text);
+            
+            $new_line = "<tr>";
+            
+            for($l = 0 ; $l < $line_len; $l++)
+            {
+                $new_line .= "<td> $line_of_text[$l] </td>";
+            }
+            
+            $new_line .= "</tr>";
+            
+            array_push( $result, $new_line );
+            
+        }
+
+        fclose($file_handle);
+
+        echo json_encode( $result );
+         */
+        
+        print_r( $_POST["options"] );
+
+        die();
+        
+    }
+    
 }
