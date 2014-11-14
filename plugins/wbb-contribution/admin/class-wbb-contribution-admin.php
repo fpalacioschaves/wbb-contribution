@@ -54,10 +54,13 @@ class WBB_Contribution_Admin {
 
         add_action('admin_menu', array($this, 'register_contribution_menu_page'));
 
-        add_action( 'wp_ajax_login_option', array($this, 'login_option') );
-        add_action( 'wp_ajax_nopriv_login_option', array($this, 'login_option') );
+        add_action('wp_ajax_login_option', array($this, 'login_option'));
+        add_action('wp_ajax_nopriv_login_option', array($this, 'login_option'));
 
-        
+
+        //LOAD FILE TO IMPORT & EXPORT.
+        add_action('wp_ajax_read_csv_user_file', array($this, 'read_csv_user_file'));
+        add_action('wp_ajax_nopriv_read_csv_user_file', array($this, 'read_csv_user_file'));
     }
 
     public function register_contribution_menu_page() {
@@ -118,22 +121,57 @@ class WBB_Contribution_Admin {
         wp_enqueue_script($this->WBB_Contribution . "-admin", plugin_dir_url(__FILE__) . 'js/wbb-contribution-admin.js', array('jquery'), $this->version, false);
 
         wp_localize_script(
-                  $this->WBB_Contribution . "-admin"
+                $this->WBB_Contribution . "-admin"
                 , 'MyAjax'
                 , array(
-                    // URL to wp-admin/admin-ajax.php to process the request
-                    'ajaxurl' => admin_url('admin-ajax.php')
+            // URL to wp-admin/admin-ajax.php to process the request
+            'ajaxurl' => admin_url('admin-ajax.php')
                 )
         );
     }
 
     public function login_option() {
-        
+
         $option = $_POST["login_option"];
-        $value  = $_POST["login_value"];
-        
+        $value = $_POST["login_value"];
+
         update_option($option, $value);
+
+        die();
+    }
+
+    public function read_csv_user_file() {
+
+
+        $uploaded_file = $_FILES["file"];
+
+        $file_handle = fopen($uploaded_file["tmp_name"], "r");
+
+        $result = array();
         
+        while (!feof($file_handle)) {
+
+            $line_of_text = fgetcsv($file_handle, 1024);
+
+            $line_len = count($line_of_text);
+            
+            $new_line = "<tr>";
+            
+            for($l = 0 ; $l < $line_len; $l++)
+            {
+                $new_line .= "<td> $line_of_text[$l] </td>";
+            }
+            
+            $new_line .= "</tr>";
+            
+            array_push( $result, $new_line );
+            
+        }
+
+        fclose($file_handle);
+
+        echo json_encode( $result );
+
         die();
     }
 

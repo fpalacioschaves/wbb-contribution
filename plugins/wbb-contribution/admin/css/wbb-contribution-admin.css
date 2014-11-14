@@ -87,3 +87,13 @@ input[type=checkbox] {
 .slideThree input[type=checkbox]:checked + label {
 	left: 43px;
 }
+
+.user-results-table-container{
+    width: 100%;
+    max-height: 500px;
+    overflow: scroll;
+}
+
+.user-results-table thead{
+    font-weight: bold;
+}
