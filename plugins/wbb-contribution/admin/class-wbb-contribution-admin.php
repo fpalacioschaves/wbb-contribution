@@ -129,6 +129,7 @@ class WBB_Contribution_Admin {
         //wp_enqueue_script( $this->WBB_Contribution."-jquery", '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js' );
         wp_enqueue_script($this->WBB_Contribution . "-jquery", "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js");
         wp_enqueue_script($this->WBB_Contribution . "-jqueryui", '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js');
+        wp_enqueue_script($this->WBB_Contribution . "-jquerysortables", plugin_dir_url(__FILE__) . 'js/jquery.dragtable.js', array('jquery'), $this->version, false);
         wp_enqueue_script($this->WBB_Contribution . "-admin", plugin_dir_url(__FILE__) . 'js/wbb-contribution-admin.js', array('jquery'), $this->version, false);
 
         wp_localize_script(

@@ -67,7 +67,22 @@
         [1] username [2] email [3] password (if pass is empty, will be generated)
     </p>
     
-    <table class="js-user-results-table user-results-table"></table>
+    <table id="js-user-results-table" class="js-user-results-table user-results-table">
+        <tbody>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+            </tr>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+            </tr>
+            <tr>
+                <td>XXXXXXX</td>
+                <td>YYYYYYYYY</td>
+            </tr>
+        </tbody>
+    </table>
     
 </div>
 

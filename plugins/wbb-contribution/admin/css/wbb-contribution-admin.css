@@ -8,7 +8,7 @@
 }
 
 
-input[type=checkbox] {
+.slideThree input[type=checkbox] {
 	visibility: hidden;
 }
 
@@ -94,6 +94,6 @@ input[type=checkbox] {
     overflow: scroll;
 }
 
-.user-results-table thead{
+.user-results-table tr:first-of-type{
     font-weight: bold;
 }

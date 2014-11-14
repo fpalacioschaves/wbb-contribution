@@ -2,6 +2,8 @@
     'use strict';
     $(document).ready(function () {
 
+$("#js-user-results-table").dragtable();
+
 //Init accordion
         $("#js-accordion-main").accordion();
         /*--------------------------------------------------------------------*/
@@ -93,18 +95,11 @@
 
                     $.each(response, function(i, val){
                         
-                        if( i < 1 )
-                        {
-                            $(".js-user-results-table thead").append(val);
-                        }
-                        else
-                        {
-                            $(".js-user-results-table tbody").append(val);
-                        }
-                        
-                        
+                        $(".js-user-results-table tbody").append(val);
                         
                     });
+
+                    
 
 
                 }
