@@ -59,7 +59,7 @@ class WBB_Contribution_Public {
             'wbb_contribution_account_shortcode'
                 )
         );
-        
+
         // Shortcode for User Content Creation
 
         add_shortcode('wbb-contribution-create', array(
@@ -68,9 +68,13 @@ class WBB_Contribution_Public {
                 )
         );
 
-        add_action('wp_ajax_wbb_update_profile_user', array($this,'wbb_update_profile_user'));
+        add_action('wp_ajax_wbb_update_profile_user', array($this, 'wbb_update_profile_user'));
 
-       
+        add_action('wp_ajax_wbb_create_item', array($this, 'wbb_create_item'));
+        
+        add_action('wp_ajax_upload_thumbnail', array($this, 'upload_thumbnail'));
+
+
     }
 
     /**
@@ -123,13 +127,12 @@ class WBB_Contribution_Public {
 
                     $is_valid = $valid_field[0]->option_value;
                     if ($is_valid == "true") {
-                        
+
                         include("views/my_account_extended.php");
-                       
                     }
                 }
             }
-             echo "</div>";
+            echo "</div>";
             include("views/my_account_send_button.php");
         } else {
             echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
@@ -143,15 +146,15 @@ class WBB_Contribution_Public {
         $user_id = $_POST['user_id'];
 
         // Actualizamos usuario
-        $user_id = wp_update_user(array('ID' => $user_id, 'user_email' => $email ));
-        
+        $user_id = wp_update_user(array('ID' => $user_id, 'user_email' => $email));
+
         update_user_meta($user_id, 'first_name', $first_name);
         update_user_meta($user_id, 'last_name', $last_name);
         update_user_meta($user_id, 'last_name', $last_name);
-        
+
         // Y los campos extendidos
         $extended_fields = explode(",", $_POST['extended_user_fields']);
-        foreach($extended_fields as $extended_field){
+        foreach ($extended_fields as $extended_field) {
             $chain = explode(":", $extended_field);
             $key = $chain[0];
             $value = $chain[1];
@@ -163,52 +166,130 @@ class WBB_Contribution_Public {
         } else {
             echo "Your profile has been updated.";
         }
-        
+
         die();
     }
-    
-    
-    
-    
+
     // SHORTCODE FOR CREATE CONTENT
     public function wbb_contribution_create_shortcode() {
 
         if (is_user_logged_in()) {
 
-            $current_user = wp_get_current_user();
-            $user_id = $current_user->ID;
-            $user_last_name = get_user_meta($user_id, "last_name", true);
-            $user_first_name = get_user_meta($user_id, "first_name", true);
-            $user_email = $current_user->user_email;
 
             // Include con los valores normales del usuario
-            include("views/my_account.php");
-            // Ahora cojo los meta data del user
-            $all_meta_for_user = get_user_meta($user_id);
+            include("views/create_item.php");
+            // Ahora cojo los meta fields del post
+
+
             echo "<div class='extended_fields' style='border: 1px solid #000;'>";
-            foreach ($all_meta_for_user as $key => $value) {
-
-                if (!in_array($key, self::$exclude_default_user_fields)) {
-                    $user_meta_key = $key;
-                    $user_meta_value = $value[0];
-                    // Miro si está a true en wp_options
-                    global $wpdb;
-                    $valid_field = $wpdb->get_results("SELECT * FROM wp_options WHERE option_name = '$user_meta_key'");
-
-                    $is_valid = $valid_field[0]->option_value;
-                    if ($is_valid == "true") {
-                        
-                        include("views/my_account_extended.php");
-                       
-                    }
-                }
-            }
-             echo "</div>";
-            include("views/my_account_send_button.php");
+            include("views/create_item_extended.php");
+            echo "</div>";
+            // Y el boton
+            include("views/create_item_send_button.php");
         } else {
             echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
         }
     }
+
+    public function wbb_create_item() {
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+        $title = $_POST['title'];
+        $content = $_POST['content'];
+
+
+        $my_post = array(
+            'post_type' => 'contribution',
+            'post_title' => $title,
+            'post_content' => $content,
+            'post_status' => 'publish',
+            'post_author' => $user_ID,
+        );
+
+        // Creamos item
+        $post_id = wp_insert_post($my_post);
+
+        
+
+        if (is_wp_error($my_post)) {
+            echo "There is an error";
+        } else {
+           echo $post_id;
+        }
+
+        die();
+    }
+    
+    
+    
+    /**
+     * Upload Thumbnail file
+     * @param $email
+     * @return mixed
+     */
+    public function upload_thumbnail() {
+       
+        if (!function_exists('wp_handle_upload'))
+            require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+        $post_id = $_POST['post_id'];
+  
+        $uploadedfile = $_FILES['featured_image'];
+
+        $upload_overrides = array('test_form' => false);
+    
+        $movefile = wp_handle_upload($uploadedfile, $upload_overrides);
+  
+        
+        if ($movefile) {
+
+            $image_url = $movefile["url"]; // Define the image URL here
+            $upload_dir = wp_upload_dir(); // Set upload folder
+            $image_data = file_get_contents($image_url); // Get image data
+            $filename = basename($image_url); // Create image file name
+            // Check folder permission and define file location
+            if (wp_mkdir_p($upload_dir['path'])) {
+                $file = $upload_dir['path'] . '/' . $filename;
+            } else {
+                $file = $upload_dir['basedir'] . '/' . $filename;
+            }
+
+            // Create the image  file on the server
+            file_put_contents($file, $image_data);
+
+            // Check image file type
+            $wp_filetype = wp_check_filetype($filename, null);
+
+            // Set attachment data
+            $attachment = array(
+                'post_mime_type' => $wp_filetype['type'],
+                'post_title' => sanitize_file_name($filename),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+
+            // Create the attachment
+            $attach_id = wp_insert_attachment($attachment, $file, $post_id);
+
+            // Include image.php
+            //require_once(ABSPATH . 'wp-admin/includes/image.php');
+            // Define attachment metadata
+            $attach_data = wp_generate_attachment_metadata($attach_id, $file);
+
+            // Assign metadata to attachment
+            wp_update_attachment_metadata($attach_id, $attach_data);
+           
+            // And finally assign featured image to post
+            set_post_thumbnail($post_id, $attach_id);
+            
+        } else {
+           echo "ERROR";
+        }
+
+        die();
+    }
+
+
 
     public function enqueue_styles() {
 
