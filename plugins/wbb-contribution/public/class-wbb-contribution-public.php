@@ -59,6 +59,14 @@ class WBB_Contribution_Public {
             'wbb_contribution_account_shortcode'
                 )
         );
+        
+        // Shortcode for User Content Creation
+
+        add_shortcode('wbb-contribution-create', array(
+            $this,
+            'wbb_contribution_create_shortcode'
+                )
+        );
 
         add_action('wp_ajax_wbb_update_profile_user', array($this,'wbb_update_profile_user'));
 
@@ -143,7 +151,6 @@ class WBB_Contribution_Public {
         
         // Y los campos extendidos
         $extended_fields = explode(",", $_POST['extended_user_fields']);
-        print_r($extended_fields);
         foreach($extended_fields as $extended_field){
             $chain = explode(":", $extended_field);
             $key = $chain[0];
@@ -152,12 +159,55 @@ class WBB_Contribution_Public {
         }
 
         if (is_wp_error($user_id)) {
-            // There was an error, probably that user doesn't exist.
+            echo "There is an error";
         } else {
-            // Success!
+            echo "Your profile has been updated.";
         }
         
         die();
+    }
+    
+    
+    
+    
+    // SHORTCODE FOR CREATE CONTENT
+    public function wbb_contribution_create_shortcode() {
+
+        if (is_user_logged_in()) {
+
+            $current_user = wp_get_current_user();
+            $user_id = $current_user->ID;
+            $user_last_name = get_user_meta($user_id, "last_name", true);
+            $user_first_name = get_user_meta($user_id, "first_name", true);
+            $user_email = $current_user->user_email;
+
+            // Include con los valores normales del usuario
+            include("views/my_account.php");
+            // Ahora cojo los meta data del user
+            $all_meta_for_user = get_user_meta($user_id);
+            echo "<div class='extended_fields' style='border: 1px solid #000;'>";
+            foreach ($all_meta_for_user as $key => $value) {
+
+                if (!in_array($key, self::$exclude_default_user_fields)) {
+                    $user_meta_key = $key;
+                    $user_meta_value = $value[0];
+                    // Miro si está a true en wp_options
+                    global $wpdb;
+                    $valid_field = $wpdb->get_results("SELECT * FROM wp_options WHERE option_name = '$user_meta_key'");
+
+                    $is_valid = $valid_field[0]->option_value;
+                    if ($is_valid == "true") {
+                        
+                        include("views/my_account_extended.php");
+                       
+                    }
+                }
+            }
+             echo "</div>";
+            include("views/my_account_send_button.php");
+        } else {
+            echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
+        }
     }
 
     public function enqueue_styles() {

@@ -68,7 +68,7 @@
             processData: false,
             cache: false,
             success: function (response) {
-               
+               $(".update-user-message").html(response);
 
 
 
