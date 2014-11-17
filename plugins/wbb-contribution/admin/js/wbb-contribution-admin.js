@@ -2,7 +2,8 @@
     'use strict';
     $(document).ready(function () {
 
-//Init accordion
+
+        //Init accordion
         $("#js-accordion-main").accordion();
         /*--------------------------------------------------------------------*/
         /*-- LOGIN OPTIONS --*/
@@ -12,13 +13,30 @@
 
             var login_option = $(this).attr("id");
             var login_value = "";
+
+            console.log(login_option)
+
             if (this.checked)
             {
+
                 login_value = "true";
+
+                if (login_option === "activate_by_mail")
+                {
+                    $(".js-editor-container").addClass("active");
+                }
+
             }
             else
             {
+
                 login_value = "false";
+
+                if (login_option === "activate_by_mail")
+                {
+                    $(".js-editor-container").removeClass("active");
+                }
+
             }
 
             var data = {
@@ -28,11 +46,74 @@
             };
             $.post(MyAjax.ajaxurl, data, function (response) {
 
-                console.log(response);
+                //console.log(response);
+
             });
         });
 
 
+        $('.js-email-content').freshereditor({
+            toolbar_selector: "#toolbar"
+            , excludes: [
+                'removeFormat'
+                        , 'insertheading4'
+                        , "fontname"
+                        , "FontSize"
+                        , "forecolor"
+                        , "backcolor"
+                        , "justifyleft"
+                        , "justifyfull"
+                        , "justifycenter"
+                        , "justifyright"
+                        , "insertheading1"
+                        , "insertheading2"
+                        , "insertheading3"
+                        , "blockquote"
+                        , "strikethrough"
+                        , "code"
+                        , "createlink"
+                        , "insertparagraph"
+                        , "subscript"
+                        , "insertimage"
+                        , "insertorderedlist"
+                        , "insertunorderedlist"
+                        , "superscript"
+            ]});
+        $(".js-email-content").freshereditor("edit", true);
+        $("#toolbar .btn-toolbar .btn-group").first().append("<a class='insert_code js-insert-code' href='#'>Insert Code</a>");
+
+        $(document).on("click", ".js-insert-code", function (event) {
+            event.preventDefault();
+            $(".js-email-content").html($(".js-email-content").html() + "<a href='user_activation_code'>User Activation Code Text</a>");
+        });
+
+        //CONFIRMATION EMAIL SAVE TEXT ACTION
+        $(document).on("keyup", ".js-email-content", function () {
+
+            save_email_text_content($(this).html());
+
+        });
+
+        $(document).on("click", "#toolbar", function () {
+
+            save_email_text_content($(".js-email-content").html());
+
+        });
+
+        function save_email_text_content(html) {
+
+            var data = {
+                  action: "save_confirmation_email_content"
+                , email_text: html
+            };
+
+            $.post(MyAjax.ajaxurl, data, function (response) {
+
+                console.log(response);
+
+            });
+
+        }
 
 
         $(".js-user-meta-checkbox input").change(function () {
@@ -92,11 +173,11 @@
                     //$(".js-user-results-table tbody").html("");
 
                     $.each(response, function (i, val) {
-                        
+
                         //Sometimes the csv return empty lines.
-                        if( val.length > 9 )
+                        if (val.length > 9)
                         {
-                            
+
                             if (i < 1)
                             {
                                 val = val.replace(/td/g, "th");
@@ -106,9 +187,9 @@
                             {
                                 $(".js-user-results-table tbody").append(val);
                             }
-                            
+
                         }
-                        
+
                     });
 
                     $("#js-user-results-table").dragtable();
@@ -122,7 +203,7 @@
         $(document).on("click", ".js-run-import", function () {
 
             //Get options.
-            if( $("#overwrite_exist_user").is(':checked') )
+            if ($("#overwrite_exist_user").is(':checked'))
             {
                 var option = true;
             }
@@ -130,8 +211,8 @@
             {
                 var option = false;
             }
-            
-            
+
+
 
             //All users imported.
 
@@ -145,34 +226,34 @@
                 $(val).css("background-color", "orange");
 
                 var user_array = {
-                      "overwrite": option
+                    "overwrite": option
                     , "user_data": {
-                          "password":   $.trim($(user_td[2]).html())
-                        , "email":      $.trim($(user_td[1]).html())
-                        , "username":   $.trim($(user_td[0]).html())
+                        "password": $.trim($(user_td[2]).html())
+                        , "email": $.trim($(user_td[1]).html())
+                        , "username": $.trim($(user_td[0]).html())
 
                     }
                     , "user_meta": {}
 
                 };
-                    console.log(user_array["overwrite"]);
-                $.each(headers, function(index, value){
-                    
+                console.log(user_array["overwrite"]);
+                $.each(headers, function (index, value) {
+
                     var user_td = $("td", val);
-                    
-                    if( index > 2 )
+
+                    if (index > 2)
                     {
-                        
+
                         user_array["user_meta"][$.trim($(this).html())] = $.trim($(user_td[index]).html());
-                        
+
                     }
-                    
-                    
+
+
                 });
 
 
                 var data = {
-                      action: "wbb_contribution_new_user"
+                    action: "wbb_contribution_new_user"
                     , user: user_array
                 };
 
@@ -181,11 +262,13 @@
                     type: "POST",
                     data: data,
                     success: function (result_user) {
-                        
-                         $(val).css("background-color", result_user);
+
+                        $(val).css("background-color", result_user);
 
                     }
-                    , error: function(err){console.log(err.message);}
+                    , error: function (err) {
+                        console.log(err.message);
+                    }
                 });
 
 
