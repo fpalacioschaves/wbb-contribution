@@ -11,3 +11,4 @@
 
 require_once locate_template ( 'system/libs/Bootstrap_Walker.php' );
 require_once locate_template ( 'system/post-types/custom-post-type.php' );
+require_once locate_template ( 'system/post-types/post-type-contribution.php' );
