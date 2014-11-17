@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The public-facing functionality of the plugin.
  *
@@ -68,13 +67,35 @@ class WBB_Contribution_Public {
                 )
         );
 
+        // Shortcode for User Content Edition
+
+        add_shortcode('wbb-contribution-edit', array(
+            $this,
+            'wbb_contribution_edit_shortcode'
+                )
+        );
+
+        // Shortcode for User Content Overview
+
+        add_shortcode('wbb-contribution-user-overview', array(
+            $this,
+            'wbb_contribution_user_overview_shortcode'
+                )
+        );
+
+
+
         add_action('wp_ajax_wbb_update_profile_user', array($this, 'wbb_update_profile_user'));
 
         add_action('wp_ajax_wbb_create_item', array($this, 'wbb_create_item'));
-        
+
+        add_action('wp_ajax_wbb_edit_item', array($this, 'wbb_edit_item'));
+
         add_action('wp_ajax_upload_thumbnail', array($this, 'upload_thumbnail'));
 
+        add_action('wp_ajax_wbb_remove_item', array($this, 'wbb_remove_item'));
 
+        add_filter('query_vars', array($this, 'add_custom_query_var'));
     }
 
     /**
@@ -209,38 +230,66 @@ class WBB_Contribution_Public {
         // Creamos item
         $post_id = wp_insert_post($my_post);
 
-        
+
 
         if (is_wp_error($my_post)) {
             echo "There is an error";
         } else {
-           echo $post_id;
+            echo $post_id;
         }
 
         die();
     }
-    
-    
-    
+
+    public function wbb_edit_item() {
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+        $title = $_POST['title'];
+        $content = $_POST['content'];
+        $post_id = $_POST['post_id'];
+
+
+        $my_post = array(
+            'ID' => $post_id,
+            'post_content' => $content,
+            'post_title' => $title,
+        );
+
+// Update the post into the database
+        wp_update_post($my_post);
+
+  
+
+
+
+        if (is_wp_error($my_post)) {
+            echo "There is an error";
+        } else {
+            echo $post_id;
+        }
+
+        die();
+    }
+
     /**
      * Upload Thumbnail file
      * @param $email
      * @return mixed
      */
     public function upload_thumbnail() {
-       
+
         if (!function_exists('wp_handle_upload'))
             require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
         $post_id = $_POST['post_id'];
-  
+
         $uploadedfile = $_FILES['featured_image'];
 
         $upload_overrides = array('test_form' => false);
-    
+
         $movefile = wp_handle_upload($uploadedfile, $upload_overrides);
-  
-        
+
+
         if ($movefile) {
 
             $image_url = $movefile["url"]; // Define the image URL here
@@ -278,18 +327,93 @@ class WBB_Contribution_Public {
 
             // Assign metadata to attachment
             wp_update_attachment_metadata($attach_id, $attach_data);
-           
+
             // And finally assign featured image to post
             set_post_thumbnail($post_id, $attach_id);
-            
         } else {
-           echo "ERROR";
+            echo "ERROR";
         }
 
         die();
     }
 
+    // SHORTCODE FOR OVERVIEW CONTENT CREATED BY USER
+    public function wbb_contribution_user_overview_shortcode() {
 
+        if (is_user_logged_in()) {
+
+            // Tomamos todos los contenidos creados por un usuario
+            $current_user = wp_get_current_user();
+            $user_id = $current_user->ID;
+
+            $author_query = array('posts_per_page' => '-1', 'author' => $user_id, 'post_type' => "contribution");
+            $author_posts = new WP_Query($author_query);
+
+            while ($author_posts->have_posts()) : $author_posts->the_post();
+                global $post;
+                ?>
+                <div style="width: 100%;">
+                    <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a>
+                    <a href="<?php echo site_url(); ?>/edit-item/?id=<?php echo get_the_ID(); ?>" data-id="<?php echo get_the_ID(); ?>">Edit</a>
+                    <a href="#" class="js-remove-content" data-id="<?php echo get_the_ID(); ?>">Remove</a>
+                </div>       
+                <?php
+            endwhile;
+        } else {
+            echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
+        }
+    }
+
+    // SHORTCODE FOR OVERVIEW CONTENT CREATED BY USER
+    public function wbb_contribution_edit_shortcode() {
+
+        if (is_user_logged_in()) {
+
+            $post_id = $_GET['id'];
+
+            $the_contribution = get_post($post_id);
+
+            $the_title = $the_contribution->post_title;
+            $the_content = $the_contribution->post_content;
+
+
+
+            // Tomamos todos los contenidos creados por un usuario
+            $current_user = wp_get_current_user();
+            $user_id = $current_user->ID;
+            include("views/edit_item.php");
+
+            include("views/edit_item_send_button.php");
+        } else {
+            echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
+        }
+    }
+
+    // BORRAR ITEM
+    public function wbb_remove_item() {
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+        $post_id = $_POST['post_id'];
+
+
+        // Borramos item
+        wp_delete_post($post_id);
+
+
+
+        if (is_wp_error($my_post)) {
+            echo "There is an error";
+        } else {
+            echo "Your items has been removed";
+        }
+
+        die();
+    }
+
+    public function add_custom_query_var($vars) {
+        $vars[] = "id";
+        return $vars;
+    }
 
     public function enqueue_styles() {
 
