@@ -59,6 +59,10 @@ class WBB_Contribution_Public {
             'wbb_contribution_account_shortcode'
                 )
         );
+
+        add_action('wp_ajax_wbb_update_profile_user', array($this,'wbb_update_profile_user'));
+
+       
     }
 
     /**
@@ -99,7 +103,7 @@ class WBB_Contribution_Public {
             include("views/my_account.php");
             // Ahora cojo los meta data del user
             $all_meta_for_user = get_user_meta($user_id);
-
+            echo "<div class='extended_fields' style='border: 1px solid #000;'>";
             foreach ($all_meta_for_user as $key => $value) {
 
                 if (!in_array($key, self::$exclude_default_user_fields)) {
@@ -108,18 +112,52 @@ class WBB_Contribution_Public {
                     // Miro si está a true en wp_options
                     global $wpdb;
                     $valid_field = $wpdb->get_results("SELECT * FROM wp_options WHERE option_name = '$user_meta_key'");
-             
+
                     $is_valid = $valid_field[0]->option_value;
-                    if($is_valid == "true"){
-                    include("views/my_account_extended.php");
+                    if ($is_valid == "true") {
+                        
+                        include("views/my_account_extended.php");
+                       
                     }
                 }
-                
             }
+             echo "</div>";
             include("views/my_account_send_button.php");
         } else {
             echo 'No tienes permiso para estar aqui. Tienes que registrarte o logarte.';
         }
+    }
+
+    public function wbb_update_profile_user() {
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $user_id = $_POST['user_id'];
+
+        // Actualizamos usuario
+        $user_id = wp_update_user(array('ID' => $user_id, 'user_email' => $email ));
+        
+        update_user_meta($user_id, 'first_name', $first_name);
+        update_user_meta($user_id, 'last_name', $last_name);
+        update_user_meta($user_id, 'last_name', $last_name);
+        
+        // Y los campos extendidos
+        $extended_fields = explode(",", $_POST['extended_user_fields']);
+        print_r($extended_fields);
+        foreach($extended_fields as $extended_field){
+            $chain = explode(":", $extended_field);
+            $key = $chain[0];
+            $value = $chain[1];
+            update_user_meta($user_id, $key, $value);
+        }
+
+        if (is_wp_error($user_id)) {
+            // There was an error, probably that user doesn't exist.
+        } else {
+            // Success!
+        }
+        
+        die();
     }
 
     public function enqueue_styles() {
@@ -156,7 +194,15 @@ class WBB_Contribution_Public {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_script($this->WBB_Contribution, plugin_dir_url(__FILE__) . 'js/wbb-contribution-public.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-public", plugin_dir_url(__FILE__) . 'js/wbb-contribution-public.js', array('jquery'), $this->version, false);
+        wp_localize_script(
+                $this->WBB_Contribution . "-public"
+                , 'MyAjax'
+                , array(
+            // URL to wp-admin/admin-ajax.php to process the request
+            'ajaxurl' => admin_url('admin-ajax.php')
+                )
+        );
     }
 
 }
