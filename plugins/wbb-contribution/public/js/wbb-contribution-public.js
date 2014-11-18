@@ -1,69 +1,6 @@
 (function ($) {
     'use strict';
 
-    hello.init({
-        facebook: '752931978078014'
-        , twitter: "EpEphl6tmYDf84ja4cY5E7rU6"
-    });
-
-    $(document).on("click", ".js-login-facebook", function () {
-
-        hello.login("facebook", {scope: "email"}, function () {
-
-            hello("facebook").api("me").then(function (json) {
-
-
-                var data = {
-                    action: "wbb_contribution_do_login"
-                    , social: "facebook"
-                    , user: json
-                };
-
-                $.post(MyAjax.ajaxurl, data, function (response) {
-
-                    //console.log(response);
-                    window.location = "/activate_user/";
-
-                });
-
-            }, function (e) {
-                alert("Whoops! " + e.error.message);
-            });
-
-        });
-
-    });
-
-    $(document).on("click", ".js-login-twitter", function () {
-
-        hello.login("twitter", {scope: "email"}, function () {
-
-            hello("twitter").api("me").then(function (json) {
-
-                console.log(json);
-
-                var data = {
-                    action: "wbb_contribution_do_login"
-                    , social: "twitter"
-                    , user: json
-                };
-
-                $.post(MyAjax.ajaxurl, data, function (response) {
-
-                    console.log(response);
-                    //location.reload();
-
-                });
-
-
-            }, function (e) {
-                alert("Whoops! " + e.error.message);
-            });
-
-        });
-
-    });
-
     // FORMULARIO DE ACTUALIZAR PERFIL DE USUARIO
     $(document).on("click", "#js-my-account-submit", function () {
 
