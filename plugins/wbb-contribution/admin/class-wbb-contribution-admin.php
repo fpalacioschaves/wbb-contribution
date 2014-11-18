@@ -71,6 +71,10 @@ class WBB_Contribution_Admin {
 
         //Save the email confirmation text.
         add_action('wp_ajax_save_confirmation_email_content', array($this, 'save_confirmation_email_content'));
+
+        // Add columns in manage user
+        add_filter('manage_users_columns', array($this, 'add_user_id_column'));
+        add_action('manage_users_custom_column', array($this, 'show_user_id_column_content'), 10, 3);
     }
 
     public function register_contribution_menu_page() {
@@ -287,6 +291,23 @@ class WBB_Contribution_Admin {
         update_option("confirmation_mail_text", $_POST["email_text"]);
         echo $_POST["email_text"];
         die();
+    }
+
+    // ADD COLUMN USER ADMIN
+
+    public function add_user_id_column($columns) {
+        $columns['enabled'] = 'User status';
+       
+        return $columns;
+    }
+
+    public function show_user_id_column_content($value, $column_name, $user_id) {
+        $user = get_userdata($user_id);
+        if ('enabled' == $column_name){
+            $estatus = get_user_meta( $user_id, "_wbb_user_active", true );
+            $output .= $status;
+        }
+        return $output;
     }
 
 }
