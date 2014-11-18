@@ -73,8 +73,8 @@
         };
 
         $.post(MyAjax.ajaxurl, data, function(redirect) {
-            console.log(redirect)
-            //window.location = redirect;
+            //console.log(redirect)
+            window.location = redirect;
 
         });
         
