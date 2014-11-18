@@ -113,7 +113,7 @@ class WBB_Contribution_Admin {
 
     public function wbb_plugins_view() {
 
-        echo "Cool Parent WBB Contribution Page";
+
         include("/partials/initial_tab.php");
     }
 
