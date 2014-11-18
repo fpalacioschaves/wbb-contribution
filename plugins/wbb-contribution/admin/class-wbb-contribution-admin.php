@@ -47,17 +47,13 @@ class WBB_Contribution_Admin {
      * @var      string    $WBB_Contribution       The name of this plugin.
      * @var      string    $version    The version of this plugin.
      */
-    
-   
-    
-    
     public function __construct($WBB_Contribution, $version) {
 
         $this->WBB_Contribution = $WBB_Contribution;
         $this->version = $version;
-        
-       
-        
+
+
+
 
         add_action('admin_menu', array($this, 'register_contribution_menu_page'));
 
@@ -66,12 +62,15 @@ class WBB_Contribution_Admin {
 
         //LOAD FILE TO IMPORT.
         add_action('wp_ajax_read_csv_user_file', array($this, 'read_csv_user_file'));
-        
-        //RUN THE IMPORT
-        add_action('wp_ajax_run_the_import', array($this, 'run_the_import'));
+
+        //NEW USER  (FIRST CHECK IF EXIST.)
+        add_action('wp_ajax_wbb_contribution_new_user', array($this, 'wbb_contribution_new_user'));
 
         //paco functions
         add_action('wp_ajax_user_fields_option', array($this, 'user_fields_option'));
+
+        //Save the email confirmation text.
+        add_action('wp_ajax_save_confirmation_email_content', array($this, 'save_confirmation_email_content'));
     }
 
     public function register_contribution_menu_page() {
@@ -105,8 +104,9 @@ class WBB_Contribution_Admin {
          * between the defined hooks and the functions defined in this
          * class.
          */
+        //wp_enqueue_style($this->WBB_Contribution, plugin_dir_url(__FILE__) . 'css/editor/bootstrap.css', array(), $this->version, 'all');
         wp_enqueue_style($this->WBB_Contribution . "-jqueryui", '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css');
-        wp_enqueue_style($this->WBB_Contribution."jquerysortables", plugin_dir_url(__FILE__) . 'css/dragtable.css', array(), $this->version, 'all');
+        wp_enqueue_style($this->WBB_Contribution . "jquerysortables", plugin_dir_url(__FILE__) . 'css/dragtable.css', array(), $this->version, 'all');
         wp_enqueue_style($this->WBB_Contribution, plugin_dir_url(__FILE__) . 'css/wbb-contribution-admin.css', array(), $this->version, 'all');
     }
 
@@ -130,7 +130,14 @@ class WBB_Contribution_Admin {
         //wp_enqueue_script( $this->WBB_Contribution."-jquery", '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js' );
         wp_enqueue_script($this->WBB_Contribution . "-jquery", "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js");
         wp_enqueue_script($this->WBB_Contribution . "-jqueryui", '//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js');
+
         wp_enqueue_script($this->WBB_Contribution . "-jquerysortables", plugin_dir_url(__FILE__) . 'js/jquery.dragtable.js', array('jquery'), $this->version, false);
+
+        wp_enqueue_script($this->WBB_Contribution . "-editor-bootstrap-dropdown", plugin_dir_url(__FILE__) . 'js/editor/bootstrap-dropdown.js');
+        wp_enqueue_script($this->WBB_Contribution . "-editor-shortcut", plugin_dir_url(__FILE__) . 'js/editor/shortcut.js');
+        wp_enqueue_script($this->WBB_Contribution . "-editor-farbtastic", plugin_dir_url(__FILE__) . 'js/editor/farbtastic/farbtastic.js');
+        wp_enqueue_script($this->WBB_Contribution . "-editor-freshereditor", plugin_dir_url(__FILE__) . 'js/editor/freshereditor.js');
+
         wp_enqueue_script($this->WBB_Contribution . "-admin", plugin_dir_url(__FILE__) . 'js/wbb-contribution-admin.js', array('jquery'), $this->version, false);
 
         wp_localize_script(
@@ -143,13 +150,15 @@ class WBB_Contribution_Admin {
         );
     }
 
+    /**
+     * Update the options
+     */
     public function login_option() {
 
         $option = $_POST["login_option"];
         $value = $_POST["login_value"];
 
         update_option($option, $value);
-
 
         die();
     }
@@ -162,29 +171,30 @@ class WBB_Contribution_Admin {
         $file_handle = fopen($uploaded_file["tmp_name"], "r");
 
         $result = array();
-        
+
         while (!feof($file_handle)) {
 
             $line_of_text = fgetcsv($file_handle, 1024);
 
             $line_len = count($line_of_text);
-            
-            $new_line = "<tr>";
-            
-            for($l = 0 ; $l < $line_len; $l++)
-            {
-                $new_line .= "<td> $line_of_text[$l] </td>";
+
+            if ($line_len > 1) {
+
+                $new_line = "<tr>";
+
+                for ($l = 0; $l < $line_len; $l++) {
+                    $new_line .= "<td>$line_of_text[$l]</td>";
+                }
+
+                $new_line .= "</tr>";
+
+                array_push($result, $new_line);
             }
-            
-            $new_line .= "</tr>";
-            
-            array_push( $result, $new_line );
-            
         }
 
         fclose($file_handle);
 
-        echo json_encode( $result );
+        echo json_encode($result);
 
 
         die();
@@ -199,29 +209,28 @@ class WBB_Contribution_Admin {
 
         die();
     }
-   public static $exclude_default_user_fields = array(
-            "admin_color",
-            "comment_shortcuts",
-            "dismissed_wp_pointers",
-            "rich_editing",
-            "session_tokens",
-            "show_admin_bar_front",
-            "show_welcome_panel",
-            "use_ssl",
-            "wp_capabilities",
-            "wp_dashboard_quick_press_last_post_id",
-            "wp_user_level",
-       "managenav-menuscolumnshidden",
-       "metaboxhidden_nav-menus",
-       "nav_menu_recently_edited",
-       "wp_user-settings",
-       "wp_user-settings-time"
-        );
-    
+
+    public static $exclude_default_user_fields = array(
+        "admin_color",
+        "comment_shortcuts",
+        "dismissed_wp_pointers",
+        "rich_editing",
+        "session_tokens",
+        "show_admin_bar_front",
+        "show_welcome_panel",
+        "use_ssl",
+        "wp_capabilities",
+        "wp_dashboard_quick_press_last_post_id",
+        "wp_user_level",
+        "managenav-menuscolumnshidden",
+        "metaboxhidden_nav-menus",
+        "nav_menu_recently_edited",
+        "wp_user-settings",
+        "wp_user-settings-time"
+    );
+
     public static function read_user_fields() {
-       
-        
-        
+
         global $wpdb;
         $user_fields = $wpdb->get_results("SELECT DISTINCT meta_key FROM wp_usermeta");
         //print_r(self::$exclude_default_user_fields) ;
@@ -233,49 +242,51 @@ class WBB_Contribution_Admin {
             if (!in_array($meta_key, self::$exclude_default_user_fields)) {
                 $get_option = (get_option($meta_key) === "true" ) ? 'checked' : '';
                 include("views/user_meta_fields.php");
-                
             }
         }
         echo "</table>";
     }
 
-    public function run_the_import()
-    {
-        /*
-        $uploaded_file = $_FILES["file"];
+    function wbb_contribution_new_user() {
 
-        $file_handle = fopen($uploaded_file["tmp_name"], "r");
+        $username = $_POST["user"]["user_data"]["username"];
+        $email = $_POST["user"]["user_data"]["email"];
+        $password = $_POST["user"]["user_data"]["password"];
 
-        $result = array();
-        
-        while (!feof($file_handle)) {
-
-            $line_of_text = fgetcsv($file_handle, 1024);
-
-            $line_len = count($line_of_text);
-            
-            $new_line = "<tr>";
-            
-            for($l = 0 ; $l < $line_len; $l++)
-            {
-                $new_line .= "<td> $line_of_text[$l] </td>";
-            }
-            
-            $new_line .= "</tr>";
-            
-            array_push( $result, $new_line );
-            
+        if ($password === "") {
+            $password = wp_generate_password(12, true);
         }
 
-        fclose($file_handle);
+        $user_id = get_user_by('email', $email);
 
-        echo json_encode( $result );
-         */
-        
-        print_r( $_POST["options"] );
+        if ($user_id) {
+
+            echo "lightblue";
+            $userID = $user_id->ID;
+        } else {
+            $user_id = wp_create_user($username, $password, $email);
+            echo "lightgreen";
+            $new_user_flag = true;
+            $userID = $user_id;
+        }
+
+        if ($_POST["user"]["overwrite"] || $new_user_flag) {
+            //user meta loop
+            foreach ($_POST["user"]["user_meta"] as $meta_key => $meta_value) {
+
+                update_user_meta($userID, $meta_key, $meta_value);
+            }
+        }
+
 
         die();
-        
     }
-    
+
+    function save_confirmation_email_content() {
+
+        update_option("confirmation_mail_text", $_POST["email_text"]);
+        echo $_POST["email_text"];
+        die();
+    }
+
 }

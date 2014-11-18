@@ -51,13 +51,21 @@ class WBB_Contribution_Public {
         $this->WBB_Contribution = $WBB_Contribution;
         $this->version = $version;
 
-        // Shortcode for User Profile
+
+        add_action('wp_ajax_wbb_contribution_do_login', array($this, 'wbb_contribution_do_login'));
+        add_action('wp_ajax_nopriv_wbb_contribution_do_login', array($this, 'wbb_contribution_do_login'));
 
         add_shortcode('wbb-contribution-account', array(
             $this,
             'wbb_contribution_account_shortcode'
                 )
         );
+
+
+        add_action('user_register', array($this, 'wbb_contribution_user_registration'), 10, 2);
+        add_action('wp_authenticate_user', array($this, 'wbb_contribution_user_pre_login'), 10, 2);
+
+        add_action('template_redirect', array($this, 'redirect_404'));
 
         // Shortcode for User Content Creation
 
@@ -96,6 +104,74 @@ class WBB_Contribution_Public {
         add_action('wp_ajax_wbb_remove_item', array($this, 'wbb_remove_item'));
 
         add_filter('query_vars', array($this, 'add_custom_query_var'));
+    }
+
+    function redirect_404() {
+
+
+
+        global $options, $wp_query;
+
+        if ($wp_query->is_404) {
+
+            $url = explode("/", $_SERVER['REQUEST_URI']);
+
+            if ($url[1] === "login_verify") {
+
+                global $wpdb;
+
+                $user_id = $wpdb->get_var("SELECT user_id FROM wp_usermeta WHERE meta_key = '_wbb_user_code' AND meta_value = '$url[2]'");
+
+                if ($user_id) {
+
+                    update_user_meta($user_id, "_wbb_user_active", "yes");
+                    get_user_by("user_id", $user_id);
+
+                    //wp_redirect( home_url() );
+                    wp_redirect("/activate_user/");
+                } else {
+                    include("views/user_code_wrong.php");
+                }
+            } else if ($url[1] === "activate_user") {
+                ?>
+                <script>document.title = "<?php echo get_option("wbb_contribution_title_user_activation_message"); ?>";</script>
+                <?php
+                include("views/user_activation_message.php");
+            } else {
+
+                include("views/404.php");
+            }
+
+
+            exit();
+        }
+    }
+
+    /**
+     * 
+     * @param type $user_id
+     */
+    function wbb_contribution_user_registration($user_id) {
+
+        update_user_meta($user_id, "_wbb_user_active", "no");
+        update_user_meta($user_id, "_wbb_user_code", "user_$user_id");
+    }
+
+    function wbb_contribution_user_pre_login($user, $password) {
+
+        global $wpdb;
+
+        if (get_user_meta($user->ID, "_wbb_user_active", true) === "yes") {
+
+            update_user_meta($user->ID, "new_test", $user->ID);
+            //Nothing to do. The user can do login.
+
+            return $user;
+        } else {
+
+            update_user_meta($user->ID, "Failed Login", $user);
+            return new WP_Error('broke', __("Error, generic message for this error.", "my_textdomain"));
+        }
     }
 
     /**
@@ -148,7 +224,6 @@ class WBB_Contribution_Public {
 
                     $is_valid = $valid_field[0]->option_value;
                     if ($is_valid == "true") {
-
                         include("views/my_account_extended.php");
                     }
                 }
@@ -258,7 +333,7 @@ class WBB_Contribution_Public {
 // Update the post into the database
         wp_update_post($my_post);
 
-  
+
 
 
 
@@ -449,9 +524,14 @@ class WBB_Contribution_Public {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_script($this->WBB_Contribution . "-public", plugin_dir_url(__FILE__) . 'js/wbb-contribution-public.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-hellojs", plugin_dir_url(__FILE__) . 'js/hellojs/hello.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-hellojs-then", plugin_dir_url(__FILE__) . 'js/hellojs/hello.then.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-hellojs-ids", plugin_dir_url(__FILE__) . 'js/hellojs/client_ids.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-hellojs-twitter", plugin_dir_url(__FILE__) . 'js/hellojs/modules/twitter.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-hellojs-facebook", plugin_dir_url(__FILE__) . 'js/hellojs/modules/facebook.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->WBB_Contribution . "-wbb-contribution-public", plugin_dir_url(__FILE__) . 'js/wbb-contribution-public.js', array('jquery'), $this->version, false);
         wp_localize_script(
-                $this->WBB_Contribution . "-public"
+                $this->WBB_Contribution . "-wbb-contribution-public"
                 , 'MyAjax'
                 , array(
             // URL to wp-admin/admin-ajax.php to process the request
@@ -460,4 +540,94 @@ class WBB_Contribution_Public {
         );
     }
 
+    public function wbb_contribution_do_login() {
+
+
+        if (isset($_POST["social"])) {
+
+            if ($_POST["social"] === "facebook") {
+
+                $user = $_POST["user"];
+                $this->check_facebook_user($user);
+            } else if ($_POST["social"] === "twitter") {
+
+                $user = $_POST["user"];
+                $this->check_twitter_user($user);
+            } else {
+
+                echo "<br>Desconocido, fin de línea";
+            }
+        } else {
+            echo "<br>No social";
+        }
+        die();
+    }
+
+    public function check_facebook_user($user) {
+
+
+        $user_id = get_user_by("email", $user["email"])->ID;
+
+        if ($user_id) {
+
+            $user = get_user_by('id', $user_id);
+
+            if ($user) {
+
+                wp_set_current_user($user_id, $user->user_login);
+                wp_set_auth_cookie($user_id);
+                do_action('wp_login', $user->user_login);
+            }
+        } else {
+
+            //"User Not register - Register and Login";
+            $this->register_and_login_new_user($user["name"], $user["email"]);
+        }
+    }
+
+    public function check_twitter_user($user) {
+
+        print_r("user <br>");
+
+        //$email = $user["name"] . "@twitter_dummy_mail.com";
+
+        $user_id = get_user_by("email", $email)->ID;
+
+        if ($user_id) {
+
+            $user = get_user_by('id', $user_id);
+
+            if ($user) {
+
+                wp_set_current_user($user_id, $user->user_login);
+                wp_set_auth_cookie($user_id);
+                do_action('wp_login', $user->user_login);
+            }
+        } else {
+
+            $name = $user["name"];
+
+            //"User Not register - Register and Login";
+            $this->register_and_login_new_user($name, $email);
+        }
+    }
+
+    function register_and_login_new_user($name, $email) {
+
+        $password = wp_generate_password(12, true);
+        $new_user_id = wp_create_user($name, $password, $email);
+
+        //print_r("register: " . $name . " / $password / $email");
+        //Redirect to "you need activate your account"
+        //wp_set_current_user($new_user_id);
+    }
+
 }
+
+/*
+EN ESTE CONTROLADOR HAY QUE AÑADIR QUE CUANDO SE TIENE ACTIVA LA OPCIÓN DE ENVIAR E-MAIL PARA
+ * CONFIRMAR A LOS USUARIOS, SE HAGA UN CHEQUEO POR CADA LOGIN/NUEVO USUARIO. 
+ * 
+ * get_option("activate_by_mail");
+ * 
+ *  */

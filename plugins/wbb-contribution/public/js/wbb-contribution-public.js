@@ -1,33 +1,68 @@
 (function ($) {
     'use strict';
 
-    /**
-     * All of the code for your public-facing JavaScript source
-     * should reside in this file.
-     *
-     * Note that this assume you're going to use jQuery, so it prepares
-     * the $ function reference to be used within the scope of this
-     * function.
-     *
-     * From here, you're able to define handlers for when the DOM is
-     * ready:
-     *
-     * $(function() {
-     *
-     * });
-     *
-     * Or when the window is loaded:
-     *
-     * $( window ).load(function() {
-     *
-     * });
-     *
-     * ...and so on.
-     *
-     * Remember that ideally, we should not attach any more than a single DOM-ready or window-load handler
-     * for any particular page. Though other scripts in WordPress core, other plugins, and other themes may
-     * be doing this, we should try to minimize doing that in our own work.
-     */
+    hello.init({
+        facebook: '752931978078014'
+        , twitter: "EpEphl6tmYDf84ja4cY5E7rU6"
+    });
+
+    $(document).on("click", ".js-login-facebook", function () {
+
+        hello.login("facebook", {scope: "email"}, function () {
+
+            hello("facebook").api("me").then(function (json) {
+
+
+                var data = {
+                    action: "wbb_contribution_do_login"
+                    , social: "facebook"
+                    , user: json
+                };
+
+                $.post(MyAjax.ajaxurl, data, function (response) {
+
+                    //console.log(response);
+                    window.location = "/activate_user/";
+
+                });
+
+            }, function (e) {
+                alert("Whoops! " + e.error.message);
+            });
+
+        });
+
+    });
+
+    $(document).on("click", ".js-login-twitter", function () {
+
+        hello.login("twitter", {scope: "email"}, function () {
+
+            hello("twitter").api("me").then(function (json) {
+
+                console.log(json);
+
+                var data = {
+                    action: "wbb_contribution_do_login"
+                    , social: "twitter"
+                    , user: json
+                };
+
+                $.post(MyAjax.ajaxurl, data, function (response) {
+
+                    console.log(response);
+                    //location.reload();
+
+                });
+
+
+            }, function (e) {
+                alert("Whoops! " + e.error.message);
+            });
+
+        });
+
+    });
 
     // FORMULARIO DE ACTUALIZAR PERFIL DE USUARIO
     $(document).on("click", "#js-my-account-submit", function () {

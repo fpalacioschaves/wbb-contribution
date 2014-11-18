@@ -92,7 +92,6 @@
     width: 100%;
     max-height: 500px;
     overflow: scroll;
-
 }
 
 .user-results-table-container th{
@@ -104,4 +103,64 @@
     user-select: none;
     
     cursor: move;
+}
+
+.user-results-table-container tr{
+    transition: 0.25s linear;
+}
+.login_options_table{
+    width: 100%;
+}
+
+.login_options_table td{
+    vertical-align: top;
+    text-align: left;
+}
+
+.email_content{
+    border: 1px solid #999;
+    width: 90%;
+    min-height: 150px;
+    padding: 5px;
+}
+
+.btn-toolbar .btn-group{
+    display: inline-block;
+}
+
+.btn-toolbar .btn-group a{
+    
+    margin-bottom: 5px;
+    
+    display: inline-block;
+    
+    text-align: center;
+    
+    padding: 6px 9px 10px 9px;
+    background-color: lightgray;
+    font-size: 15px;
+    margin-right: 5px;
+    
+    border-radius: 4px;
+    
+    width: 15px;
+    height: 15px;
+    
+}
+
+.editor-container{
+    width: 100%;
+    overflow: hidden;
+    height: 0px;
+    transition: 0.5s linear;
+    
+}
+
+.editor-container.active{
+    height: 100%;
+}
+
+a.insert_code{
+    min-width: 100px;
+    margin-left: 25px;
 }
