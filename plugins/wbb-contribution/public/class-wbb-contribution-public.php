@@ -141,15 +141,25 @@ class WBB_Contribution_Public {
 
                 $user_id = $wpdb->get_var("SELECT user_id FROM wp_usermeta WHERE meta_key = '_wbb_user_code' AND meta_value = '$url[2]'");
 
-                if ($user_id) {
+                if ($user_id)
+                {
 
                     update_user_meta($user_id, "_wbb_user_active", "yes");
-                    get_user_by("user_id", $user_id);
-
-                    //wp_redirect( home_url() );
-                    wp_redirect("/activate_user/");
-                } else {
+                    
+                    $user = get_user_by("id", $user_id);
+                    
+                    wp_set_current_user($user->ID, $user->user_login);
+                    wp_set_auth_cookie($user->ID);
+                    do_action('wp_login', $user->user_login);
+                    
+                    wp_redirect( home_url() );
+                    
+                }
+                else
+                {
+                    
                     include("views/user_code_wrong.php");
+                    
                 }
             }
             else if ($url[1] === "activate_user")
@@ -637,7 +647,7 @@ class WBB_Contribution_Public {
         {
 
             //"User Not register - Register and Login";
-            $this->register_and_login_new_user($user["name"], $user["email"]);
+            $this->register_and_login_new_user($user["name"], $user["email"], "");
             
         }
     }
@@ -659,7 +669,7 @@ class WBB_Contribution_Public {
         {
 
             //"User Not register - Register and Login";
-            $this->register_and_login_new_user($user["name"], $user["email"]);
+            $this->register_and_login_new_user($user["name"], $user["email"], "");
             
         }
     }
@@ -709,18 +719,28 @@ class WBB_Contribution_Public {
     }
     
     function register_and_login_new_user($name, $email, $password) {
-
+        
+        //Register
+        
         if( $password === "" )
         {
             $password       = wp_generate_password(12, true);
         }
         
         $new_user_id    = wp_create_user($name, $password, $email);
-        
         $user = get_user_by("email", $email);
+
         
-        echo "user $name $email $password";
+        //Send email if this option is checked.
+        if( ( get_option("activate_by_mail") === "true" ) )
+        {
+            
+            $this->send_confirmation_email($user);
+            
+        }
         
+        
+        //Login
         $this->check_login_user($user);
         
     }
@@ -759,6 +779,27 @@ class WBB_Contribution_Public {
         }
         
         die();
+        
+    }
+
+    function send_confirmation_email($user)
+    {
+        
+        $to         = $user->user_email;
+        $subject    = "Subject email";
+        
+        $message    = "".get_option("confirmation_mail_text", true)."";
+        
+        $user_code = get_user_meta($user->ID, "_wbb_user_code", true);
+        $link_activation_code = "<a href='".get_bloginfo("url")."/login_verify/$user_code'>Activation Link</a>";
+        
+        $message = str_replace("-User Activation Code Text-", $link_activation_code, $message);
+        
+        $headers[]  = "MIME-Version: 1.0";
+        $headers[]  = "Content-Type: text/html; charset=UTF-8";
+        $headers[]  = 'From: Me Myself <info@webberty.com>';
+        
+        $mail = wp_mail($to, $subject, $message, $headers);
         
     }
     
