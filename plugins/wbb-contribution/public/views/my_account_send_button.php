@@ -1,0 +1,1 @@
+<input type="submit" value="Submit" id="js-my-account-submit" name="js-my-account-submit">

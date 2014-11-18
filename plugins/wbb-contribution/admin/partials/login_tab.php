@@ -43,3 +43,32 @@
                 </td>
             </tr>
         </table>
+        
+        <hr>
+        
+        <table class="login_options_table">
+            <tr>
+                <td>Activate account by mail?</td>
+                <td>
+                    <div class="slideThree js-login-checkbox">	
+                        <input type="checkbox" value="None" id="activate_by_mail" name="activate_by_mail" <?php echo ( get_option("activate_by_mail") === "true" ) ? 'checked' : ''; ?> />
+                        <label for="activate_by_mail"></label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    
+                    <div class="js-editor-container editor-container  <?php echo ( get_option("activate_by_mail") === "true" ) ? 'active' : ''; ?> ">
+                        
+                        <div id="toolbar"></div>
+                        <div class="email_content js-email-content" contenteditable="true">
+                            <?php echo get_option("confirmation_mail_text", true) ?>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                </td>
+            </tr>
+        </table>
