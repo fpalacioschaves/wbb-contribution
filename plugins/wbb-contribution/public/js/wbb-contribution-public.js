@@ -147,8 +147,8 @@
             processData: false,
             cache: false,
             success: function (response) {
-                console.log("SUBIENDO");
-                //
+
+
                 var inputFileImage = document.getElementById("featured_image");
                 var file = inputFileImage.files[0];
                 var data_img = new FormData();
@@ -165,6 +165,91 @@
                     cache: false,
                     success: function (file_url) {
                         $(".create-item-message").html("Your item has been created");
+                    }
+                });
+
+
+
+            }
+        })
+
+
+    })
+    
+    
+    
+    // BORRAR ITEM
+    $(document).on("click", ".js-remove-content", function () {
+        var post_id = $(this).attr("data-id");
+        var data_item = new FormData();
+        data_item.append("post_id", post_id);
+        data_item.append("action", "wbb_remove_item");
+        
+         $.ajax({
+                    url: MyAjax.ajaxurl,
+                    type: "POST",
+                    contentType: false,
+                    data: data_item,
+                    processData: false,
+                    cache: false,
+                    success: function () {
+                       location.reload();
+                    }
+                });
+    });
+    
+    
+    // FORMULARIO DE EDITAR ITEM
+    $(document).on("click", "#js-edit-item-submit", function () {
+
+        // Primero recojo los valores usuales del item
+        // First name, Last name y email
+        var title = $("#title").val();
+        var content = $("#content").val();
+        var featured_image = $("#featured_image").val();
+        var post_id = $("#post_id").val();
+
+
+
+
+
+        var extended_item_fields = new Array();
+
+
+        var item = new FormData();
+        item.append("title", title);
+        item.append("content", content);
+        item.append("post_id", post_id);
+       
+
+        item.append("action", 'wbb_edit_item');
+
+        $.ajax({
+            url: MyAjax.ajaxurl,
+            type: "POST",
+            contentType: false,
+            data: item,
+            processData: false,
+            cache: false,
+            success: function (response) {
+
+
+                var inputFileImage = document.getElementById("featured_image");
+                var file = inputFileImage.files[0];
+                var data_img = new FormData();
+                data_img.append("featured_image", file);
+                data_img.append("action", 'upload_thumbnail');
+                data_img.append("post_id", post_id);
+                console.log(response);
+                $.ajax({
+                    url: MyAjax.ajaxurl,
+                    type: "POST",
+                    contentType: false,
+                    data: data_img,
+                    processData: false,
+                    cache: false,
+                    success: function (file_url) {
+                        $(".edit-item-message").html("Your item has been created");
                     }
                 });
 
