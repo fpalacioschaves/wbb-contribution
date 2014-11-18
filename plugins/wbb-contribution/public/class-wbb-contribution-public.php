@@ -53,8 +53,6 @@ class WBB_Contribution_Public {
 
         /*  USER LOGIN & REGISTRATION 
         ***********************************************************************/
-        
-
         add_action('wp_ajax_wbb_contribution_do_login', array($this, 'wbb_contribution_do_login'));
         add_action('wp_ajax_nopriv_wbb_contribution_do_login', array($this, 'wbb_contribution_do_login'));
 
