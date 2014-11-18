@@ -438,7 +438,7 @@ class WBB_Contribution_Public {
                 ?>
                 <div style="width: 100%;">
                     <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a>
-                    <a href="<?php echo site_url(); ?>/edit-item/?id=<?php echo get_the_ID(); ?>" data-id="<?php echo get_the_ID(); ?>">Edit</a>
+                    <a href="<?php echo site_url(); ?>/edit-contribution/?id=<?php echo get_the_ID(); ?>" data-id="<?php echo get_the_ID(); ?>">Edit</a>
                     <a href="#" class="js-remove-content" data-id="<?php echo get_the_ID(); ?>">Remove</a>
                 </div>       
                 <?php
