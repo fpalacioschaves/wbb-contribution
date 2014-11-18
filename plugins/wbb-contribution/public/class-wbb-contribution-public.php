@@ -51,6 +51,8 @@ class WBB_Contribution_Public {
         $this->WBB_Contribution = $WBB_Contribution;
         $this->version = $version;
 
+        /*  USER LOGIN & REGISTRATION 
+        ***********************************************************************/
         add_action('wp_ajax_wbb_contribution_do_login', array($this, 'wbb_contribution_do_login'));
         add_action('wp_ajax_nopriv_wbb_contribution_do_login', array($this, 'wbb_contribution_do_login'));
 
@@ -60,12 +62,28 @@ class WBB_Contribution_Public {
                 )
         );
 
-
         add_action('user_register', array($this, 'wbb_contribution_user_registration'), 10, 2);
         add_action('wp_authenticate_user', array($this, 'wbb_contribution_user_pre_login'), 10, 2);
-
+        
+        //FUNCTION THAT HACK THE 404 PAGE, AND REDIRECT TO SPECIFIC PAGES.
         add_action('template_redirect', array($this, 'redirect_404'));
-
+        
+        //NEW USER WITH WP FORM
+        add_action('wp_ajax_wbb_contribution_wp_new_user', array($this, 'wbb_contribution_wp_new_user'));
+        add_action('wp_ajax_nopriv_wbb_contribution_wp_new_user', array($this, 'wbb_contribution_wp_new_user'));
+        
+        //LOGIN WITH WP FORM
+        add_action('wp_ajax_wbb_wbb_contribution_do_wp_login', array($this, 'wbb_contribution_do_wp_login'));
+        add_action('wp_ajax_nopriv_wbb_contribution_do_wp_login', array($this, 'wbb_contribution_do_wp_login'));
+        
+        
+        /* END :: USER LOGIN & REGISTRATION 
+        ***********************************************************************/
+        
+        
+        
+        
+        
         // Shortcode for User Content Creation
 
         add_shortcode('wbb-contribution-create', array(
@@ -103,11 +121,10 @@ class WBB_Contribution_Public {
         add_action('wp_ajax_wbb_remove_item', array($this, 'wbb_remove_item'));
 
         add_filter('query_vars', array($this, 'add_custom_query_var'));
+        
     }
 
     function redirect_404() {
-
-
 
         global $options, $wp_query;
 
@@ -115,28 +132,50 @@ class WBB_Contribution_Public {
 
             $url = explode("/", $_SERVER['REQUEST_URI']);
 
-            if ($url[1] === "login_verify") {
+            if ($url[1] === "login_verify")
+            {
 
                 global $wpdb;
 
                 $user_id = $wpdb->get_var("SELECT user_id FROM wp_usermeta WHERE meta_key = '_wbb_user_code' AND meta_value = '$url[2]'");
 
-                if ($user_id) {
+                if ($user_id)
+                {
 
                     update_user_meta($user_id, "_wbb_user_active", "yes");
-                    get_user_by("user_id", $user_id);
-
-                    //wp_redirect( home_url() );
-                    wp_redirect("/activate_user/");
-                } else {
-                    include("views/user_code_wrong.php");
+                    
+                    $user = get_user_by("id", $user_id);
+                    
+                    wp_set_current_user($user->ID, $user->user_login);
+                    wp_set_auth_cookie($user->ID);
+                    do_action('wp_login', $user->user_login);
+                    
+                    wp_redirect( home_url() );
+                    
                 }
-            } else if ($url[1] === "activate_user") {
+                else
+                {
+                    
+                    include("views/user_code_wrong.php");
+                    
+                }
+            }
+            else if ($url[1] === "activate_user")
+            {
                 ?>
                 <script>document.title = "<?php echo get_option("wbb_contribution_title_user_activation_message"); ?>";</script>
                 <?php
                 include("views/user_activation_message.php");
-            } else {
+            }
+            else if ($url[1] === "login_error")
+            {
+                ?>
+                <script>document.title = "Login error";</script>
+                <?php
+                include("views/login_error.php");
+            }
+            else 
+            {
 
                 include("views/404.php");
             }
@@ -154,23 +193,42 @@ class WBB_Contribution_Public {
 
         update_user_meta($user_id, "_wbb_user_active", "no");
         update_user_meta($user_id, "_wbb_user_code", "user_$user_id");
+        
     }
 
-    function wbb_contribution_user_pre_login($user, $password) {
+    /**
+     * Check before do login finally.
+     * 
+     * 
+     * 
+     * @global type $wpdb
+     * @param type $user
+     * @param type $password
+     * @return \WP_Error
+     */
+    function wbb_contribution_user_pre_login($user) {
 
-        global $wpdb;
+        if( ( get_option("activate_by_mail") === "true" ) )
+        {
+            
+            if (get_user_meta($user->ID, "_wbb_user_active", true) === "yes" || $user->ID == 1 ) {
 
-        if (get_user_meta($user->ID, "_wbb_user_active", true) === "yes") {
+                //Nothing to do. The user can do login.
+                return $user;
 
-            update_user_meta($user->ID, "new_test", $user->ID);
-            //Nothing to do. The user can do login.
+            } else {
 
-            return $user;
-        } else {
-
-            update_user_meta($user->ID, "Failed Login", $user);
-            return new WP_Error('broke', __("Error, generic message for this error.", "my_textdomain"));
+                update_user_meta($user->ID, "Failed Login", $user);
+                return new WP_Error('broke', __("Error, generic message for this error.", "my_textdomain"));
+            }
+            
         }
+        else
+        {
+            //Nothing to do. The user can do login.
+            return $user;
+        }
+        
     }
 
     /**
@@ -206,6 +264,7 @@ class WBB_Contribution_Public {
             $user_last_name = get_user_meta($user_id, "last_name", true);
             $user_first_name = get_user_meta($user_id, "first_name", true);
             $user_email = $current_user->user_email;
+            $user_school = get_user_meta($user_id, "school", true);
 
             // Include con los valores normales del usuario
             include("views/my_account.php");
@@ -238,6 +297,7 @@ class WBB_Contribution_Public {
         $first_name = $_POST['first_name'];
         $last_name = $_POST['last_name'];
         $email = $_POST['email'];
+        $school = $_POST['school'];
         $user_id = $_POST['user_id'];
 
         // Actualizamos usuario
@@ -245,7 +305,7 @@ class WBB_Contribution_Public {
 
         update_user_meta($user_id, 'first_name', $first_name);
         update_user_meta($user_id, 'last_name', $last_name);
-        update_user_meta($user_id, 'last_name', $last_name);
+        update_user_meta($user_id, 'school', $school);
 
         // Y los campos extendidos
         $extended_fields = explode(",", $_POST['extended_user_fields']);
@@ -428,7 +488,7 @@ class WBB_Contribution_Public {
                 ?>
                 <div style="width: 100%;">
                     <a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>"><?php the_title(); ?></a>
-                    <a href="<?php echo site_url(); ?>/edit-item/?id=<?php echo get_the_ID(); ?>" data-id="<?php echo get_the_ID(); ?>">Edit</a>
+                    <a href="<?php echo site_url(); ?>/edit-contribution/?id=<?php echo get_the_ID(); ?>" data-id="<?php echo get_the_ID(); ?>">Edit</a>
                     <a href="#" class="js-remove-content" data-id="<?php echo get_the_ID(); ?>">Remove</a>
                 </div>       
                 <?php
@@ -491,19 +551,10 @@ class WBB_Contribution_Public {
 
     public function enqueue_styles() {
 
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in WBB_Contribution_Public_Loader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The WBB_Contribution_Public_Loader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
         wp_enqueue_style($this->WBB_Contribution, plugin_dir_url(__FILE__) . 'css/wbb-contribution-public.css', array(), $this->version, 'all');
+        
     }
+    
 
     /**
      * Register the stylesheets for the public-facing side of the site.
@@ -512,22 +563,26 @@ class WBB_Contribution_Public {
      */
     public function enqueue_scripts() {
 
-        /**
-         * This function is provided for demonstration purposes only.
-         *
-         * An instance of this class should be passed to the run() function
-         * defined in WBB_Contribution_Public_Loader as all of the hooks are defined
-         * in that particular class.
-         *
-         * The WBB_Contribution_Public_Loader will then create the relationship
-         * between the defined hooks and the functions defined in this
-         * class.
-         */
+        //LOGIN & REGISTER
         wp_enqueue_script($this->WBB_Contribution . "-hellojs", plugin_dir_url(__FILE__) . 'js/hellojs/hello.js', array('jquery'), $this->version, false);
         wp_enqueue_script($this->WBB_Contribution . "-hellojs-then", plugin_dir_url(__FILE__) . 'js/hellojs/hello.then.js', array('jquery'), $this->version, false);
         wp_enqueue_script($this->WBB_Contribution . "-hellojs-ids", plugin_dir_url(__FILE__) . 'js/hellojs/client_ids.js', array('jquery'), $this->version, false);
         wp_enqueue_script($this->WBB_Contribution . "-hellojs-twitter", plugin_dir_url(__FILE__) . 'js/hellojs/modules/twitter.js', array('jquery'), $this->version, false);
         wp_enqueue_script($this->WBB_Contribution . "-hellojs-facebook", plugin_dir_url(__FILE__) . 'js/hellojs/modules/facebook.js', array('jquery'), $this->version, false);
+        
+        wp_enqueue_script($this->WBB_Contribution . "-wbb-contribution-login-and-register", plugin_dir_url(__FILE__) . 'js/login_and_register.js', array('jquery'), $this->version, false);
+        wp_localize_script(
+                $this->WBB_Contribution . "-wbb-contribution-login-and-register"
+                , 'MyAjax'
+                , array(
+            // URL to wp-admin/admin-ajax.php to process the request
+            'ajaxurl' => admin_url('admin-ajax.php')
+                )
+        );
+        
+        //End login & register -------------------------------------------------
+        
+        
         wp_enqueue_script($this->WBB_Contribution . "-wbb-contribution-public", plugin_dir_url(__FILE__) . 'js/wbb-contribution-public.js', array('jquery'), $this->version, false);
         wp_localize_script(
                 $this->WBB_Contribution . "-wbb-contribution-public"
@@ -541,91 +596,209 @@ class WBB_Contribution_Public {
 
     public function wbb_contribution_do_login() {
 
+        if (isset($_POST["social"]))
+        {
 
-        if (isset($_POST["social"])) {
-
-            if ($_POST["social"] === "facebook") {
+            if ($_POST["social"] === "facebook")
+            {
 
                 $user = $_POST["user"];
                 $this->check_facebook_user($user);
-            } else if ($_POST["social"] === "twitter") {
+                
+            }
+            else if ($_POST["social"] === "twitter")
+            {
 
                 $user = $_POST["user"];
                 $this->check_twitter_user($user);
-            } else {
-
-                echo "<br>Desconocido, fin de línea";
+                
             }
-        } else {
-            echo "<br>No social";
+            else
+            {
+
+                //echo " Unknown social ";
+                
+            }
+            
         }
+        else
+        {
+            //echo "No social";
+        }
+        
         die();
+        
     }
 
-    public function check_facebook_user($user) {
-
+    function check_facebook_user($user) {
 
         $user_id = get_user_by("email", $user["email"])->ID;
 
-        if ($user_id) {
+        if ($user_id)
+        {
 
             $user = get_user_by('id', $user_id);
-
-            if ($user) {
-
-                wp_set_current_user($user_id, $user->user_login);
-                wp_set_auth_cookie($user_id);
-                do_action('wp_login', $user->user_login);
-            }
-        } else {
+            $this->check_login_user( $user );
+            
+        }
+        else
+        {
 
             //"User Not register - Register and Login";
-            $this->register_and_login_new_user($user["name"], $user["email"]);
+            $this->register_and_login_new_user($user["name"], $user["email"], "");
+            
         }
     }
 
-    public function check_twitter_user($user) {
+    function check_twitter_user($user) {
 
-        print_r("user <br>");
-        //$email = $user["name"] . "@twitter_dummy_mail.com";
+        $user["email"] = $user["screen_name"] . "@twitterdummymail.com";
 
-        $user_id = get_user_by("email", $email)->ID;
+        $user_id = get_user_by("email", $user["email"])->ID;
 
-        if ($user_id) {
+        if ($user_id)
+        {
 
             $user = get_user_by('id', $user_id);
-
-            if ($user) {
-
-                wp_set_current_user($user_id, $user->user_login);
-                wp_set_auth_cookie($user_id);
-                do_action('wp_login', $user->user_login);
-            }
-        } else {
-
-            $name = $user["name"];
+            $this->check_login_user( $user );
+            
+        }
+        else
+        {
 
             //"User Not register - Register and Login";
-            $this->register_and_login_new_user($name, $email);
+            $this->register_and_login_new_user($user["name"], $user["email"], "");
+            
         }
     }
 
-    function register_and_login_new_user($name, $email) {
+    /**
+     * Check if in the admin there are options to filter the login. Like activated by email.
+     * 
+     * @param type $user
+     */
+    function check_login_user($user)
+    {
+     
+        //Activate by email
+        if( get_option("activate_by_mail") === "true" )
+        {
+            
+            if( get_user_meta( $user->ID, "_wbb_user_active", true ) === "no")
+            {
+                
+                echo "/activate_user/";
+                
+            }
+            else if( get_user_meta( $user->ID, "_wbb_user_active", true ) === "yes")
+            {
+                
+                wp_set_current_user($user->ID, $user->user_login);
+                wp_set_auth_cookie($user->ID);
+                do_action('wp_login', $user->user_login);
+                
+                echo home_url();
+                
+            }
+            
+            
+        }
+        else
+        {
+            
+            wp_set_current_user($user->ID, $user->user_login);
+            wp_set_auth_cookie($user->ID);
+            do_action('wp_login', $user->user_login);
+         
+            echo home_url();
+            
+        }
+        
+    }
+    
+    function register_and_login_new_user($name, $email, $password) {
+        
+        //Register
+        
+        if( $password === "" )
+        {
+            $password       = wp_generate_password(12, true);
+        }
+        
+        $new_user_id    = wp_create_user($name, $password, $email);
+        $user = get_user_by("email", $email);
 
-        $password = wp_generate_password(12, true);
-        $new_user_id = wp_create_user($name, $password, $email);
-
-        //print_r("register: " . $name . " / $password / $email");
-        //Redirect to "you need activate your account"
-        //wp_set_current_user($new_user_id);
+        
+        //Send email if this option is checked.
+        if( ( get_option("activate_by_mail") === "true" ) )
+        {
+            
+            $this->send_confirmation_email($user);
+            
+        }
+        
+        
+        //Login
+        $this->check_login_user($user);
+        
     }
 
+    public function wbb_contribution_wp_new_user(){
+        
+        $user = get_user_by("email", $_POST["email"]);
+        
+        if( $user )
+        {
+            $this->check_login_user($user);
+        }
+        else
+        {
+            $this->register_and_login_new_user($_POST["username"], $_POST["email"], $_POST["password"]);
+        }
+        
+        die();
+    }
+    
+    public function wbb_contribution_do_wp_login(){
+        
+        $creds = array();
+	$creds['user_login']        = $_POST["username"];
+	$creds['user_password']     = $_POST["password"];
+	//$creds['remember']          = true;
+	$user = wp_signon( $creds, false );
+        
+        if( $user->ID )
+        {
+            $this->check_login_user($user);
+        }
+        else
+        {
+            echo "/login_error/";
+        }
+        
+        die();
+        
+    }
+
+    function send_confirmation_email($user)
+    {
+        
+        $to         = $user->user_email;
+        $subject    = "Subject email";
+        
+        $message    = "".get_option("confirmation_mail_text", true)."";
+        
+        $user_code = get_user_meta($user->ID, "_wbb_user_code", true);
+        $link_activation_code = "<a href='".get_bloginfo("url")."/login_verify/$user_code'>Activation Link</a>";
+        
+        $message = str_replace("-User Activation Code Text-", $link_activation_code, $message);
+        
+        $headers[]  = "MIME-Version: 1.0";
+        $headers[]  = "Content-Type: text/html; charset=UTF-8";
+        $headers[]  = 'From: Me Myself <info@webberty.com>';
+        
+        $mail = wp_mail($to, $subject, $message, $headers);
+        
+    }
+    
 }
-
-/*
-EN ESTE CONTROLADOR HAY QUE AÑADIR QUE CUANDO SE TIENE ACTIVA LA OPCIÓN DE ENVIAR E-MAIL PARA
- * CONFIRMAR A LOS USUARIOS, SE HAGA UN CHEQUEO POR CADA LOGIN/NUEVO USUARIO. 
- * 
- * get_option("activate_by_mail");
- * 
- *  */

@@ -84,7 +84,7 @@
 
         $(document).on("click", ".js-insert-code", function (event) {
             event.preventDefault();
-            $(".js-email-content").html($(".js-email-content").html() + "<a href='user_activation_code'>User Activation Code Text</a>");
+            $(".js-email-content").html($(".js-email-content").html() + "-User Activation Code Text-");
         });
 
         //CONFIRMATION EMAIL SAVE TEXT ACTION

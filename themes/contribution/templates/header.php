@@ -2,6 +2,7 @@
 <?php echo get_template_part ( 'templates/menu', 'top' ); ?>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 <script>
     /*
   window.fbAsyncInit = function() {
@@ -39,3 +40,7 @@ print_r($current_user);
 <button class="js-login-facebook">Login Facebook</button>
 <button class="js-login-twitter">Login Twitter</button>
 >>>>>>> a779f10b3ab772dd1fb6ca7c86024f3d7e847461
+=======
+
+<?php  get_template_part("templates/components/login_buttons") ?>
+>>>>>>> fa1ccd4eaef87ee9a63fc5dd9309d11aac25a5fd

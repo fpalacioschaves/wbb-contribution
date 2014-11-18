@@ -31,6 +31,9 @@ class WBB_Contribution_Deactivator {
 	 */
 	public static function deactivate() {
             WBB_Contribution_Deactivator::delete_page_my_account();
+            WBB_Contribution_Deactivator::delete_page_create_contribution();
+            WBB_Contribution_Deactivator::delete_page_edit_contribution();
+            WBB_Contribution_Deactivator::delete_page_list_contribution();
             
 	}
         
@@ -38,6 +41,29 @@ class WBB_Contribution_Deactivator {
         // Delete My Account page
         public function delete_page_my_account(){
              $page = get_page_by_title( 'My account' );
+             $page_id = $page->ID;
+             wp_delete_post($page_id);
+        }
+        
+        // Delete Create Contribution page
+        public function delete_page_create_contribution(){
+             $page = get_page_by_title( 'Create Contribution' );
+             $page_id = $page->ID;
+             wp_delete_post($page_id);
+        }
+        
+        
+        // Delete Edit Contribution page
+        public function delete_page_edit_contribution(){
+             $page = get_page_by_title( 'Edit Contribution' );
+             $page_id = $page->ID;
+             wp_delete_post($page_id);
+        }
+        
+        
+        // Delete List Contribution Overview
+        public function delete_page_list_contribution(){
+             $page = get_page_by_title( 'List Contribution' );
              $page_id = $page->ID;
              wp_delete_post($page_id);
         }
