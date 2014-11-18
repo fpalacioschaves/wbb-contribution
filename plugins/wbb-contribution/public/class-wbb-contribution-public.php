@@ -134,7 +134,8 @@ class WBB_Contribution_Public {
 
             $url = explode("/", $_SERVER['REQUEST_URI']);
 
-            if ($url[1] === "login_verify") {
+            if ($url[1] === "login_verify")
+            {
 
                 global $wpdb;
 
@@ -150,12 +151,23 @@ class WBB_Contribution_Public {
                 } else {
                     include("views/user_code_wrong.php");
                 }
-            } else if ($url[1] === "activate_user") {
+            }
+            else if ($url[1] === "activate_user")
+            {
                 ?>
                 <script>document.title = "<?php echo get_option("wbb_contribution_title_user_activation_message"); ?>";</script>
                 <?php
                 include("views/user_activation_message.php");
-            } else {
+            }
+            else if ($url[1] === "login_error")
+            {
+                ?>
+                <script>document.title = "Login error";</script>
+                <?php
+                include("views/login_error.php");
+            }
+            else 
+            {
 
                 include("views/404.php");
             }
@@ -729,7 +741,22 @@ class WBB_Contribution_Public {
     
     public function wbb_contribution_do_wp_login(){
         
+        $creds = array();
+	$creds['user_login']        = $_POST["username"];
+	$creds['user_password']     = $_POST["password"];
+	//$creds['remember']          = true;
+	$user = wp_signon( $creds, false );
         
+        if( $user->ID )
+        {
+            $this->check_login_user($user);
+        }
+        else
+        {
+            echo "/login_error/";
+        }
+        
+        die();
         
     }
     

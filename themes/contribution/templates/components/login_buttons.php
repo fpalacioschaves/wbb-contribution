@@ -1,12 +1,12 @@
 <div class="js-login-facebook btn btn-info">Login Facebook</div>
 <div class="js-login-twitter btn btn-info">Login Twitter</div>
-<div class="js-login-wp btn btn-info">
-    <span>Login WP</span>
+<div class="js-login-wp">
+    <span class="btn btn-info">Login WP</span>
     <div class="wp-login-form js-wp-login-form">
         <label>User Name</label>
         <input type="text" class="js-login-form-user" value="" />
         <label>Password</label>
-        <input type="text" class="js-login-form-password" value="" />
+        <input type="password" class="js-login-form-password" value="" />
         <div class="btn btn-danger js-wp-do-login">Login</div>
     </div>
 </div>

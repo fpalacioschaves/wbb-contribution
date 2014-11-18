@@ -69,13 +69,12 @@
         var data = {
               action:   "wbb_contribution_do_wp_login"
             , username: username
-            , email:    email
             , password: password
         };
 
         $.post(MyAjax.ajaxurl, data, function(redirect) {
-
-            window.location = redirect;
+            console.log(redirect)
+            //window.location = redirect;
 
         });
         
