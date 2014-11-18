@@ -93,7 +93,7 @@
             errors = errors + "School is rwquired<br>";
         }
 
-        console.log(errors);
+
         // Extended fields
         var extended_user_fields = new Array();
 
@@ -108,7 +108,7 @@
                 });
 
         if (errors == "") {
-            console.log(extended_user_fields);
+
             var user = new FormData();
             user.append("first_name", first_name);
             user.append("last_name", last_name);
@@ -195,7 +195,7 @@
                     data_img.append("featured_image", file);
                     data_img.append("action", 'upload_thumbnail');
                     data_img.append("post_id", response);
-                    console.log(response);
+
                     $.ajax({
                         url: MyAjax.ajaxurl,
                         type: "POST",
@@ -292,7 +292,6 @@
 
                     var inputFileImage = document.getElementById("featured_image");
                     var file = inputFileImage.files[0];
-                    console.log(inputFileImage.value);
                     if (inputFileImage.value != "") {
                     var filename = file.name;
                     
@@ -300,7 +299,6 @@
                         data_img.append("featured_image", file);
                         data_img.append("action", 'upload_thumbnail');
                         data_img.append("post_id", post_id);
-                        console.log(response);
                         $.ajax({
                             url: MyAjax.ajaxurl,
                             type: "POST",
