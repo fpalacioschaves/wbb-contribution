@@ -72,7 +72,7 @@
         var item = new FormData();
         item.append("title", title);
         item.append("content", content);
-       
+
 
         item.append("action", 'wbb_create_item');
 
@@ -112,30 +112,30 @@
 
 
     })
-    
-    
-    
+
+
+
     // BORRAR ITEM
     $(document).on("click", ".js-remove-content", function () {
         var post_id = $(this).attr("data-id");
         var data_item = new FormData();
         data_item.append("post_id", post_id);
         data_item.append("action", "wbb_remove_item");
-        
-         $.ajax({
-                    url: MyAjax.ajaxurl,
-                    type: "POST",
-                    contentType: false,
-                    data: data_item,
-                    processData: false,
-                    cache: false,
-                    success: function () {
-                       location.reload();
-                    }
-                });
+
+        $.ajax({
+            url: MyAjax.ajaxurl,
+            type: "POST",
+            contentType: false,
+            data: data_item,
+            processData: false,
+            cache: false,
+            success: function () {
+                location.reload();
+            }
+        });
     });
-    
-    
+
+
     // FORMULARIO DE EDITAR ITEM
     $(document).on("click", "#js-edit-item-submit", function () {
 
@@ -157,7 +157,7 @@
         item.append("title", title);
         item.append("content", content);
         item.append("post_id", post_id);
-       
+
 
         item.append("action", 'wbb_edit_item');
 
@@ -173,23 +173,25 @@
 
                 var inputFileImage = document.getElementById("featured_image");
                 var file = inputFileImage.files[0];
-                var data_img = new FormData();
-                data_img.append("featured_image", file);
-                data_img.append("action", 'upload_thumbnail');
-                data_img.append("post_id", post_id);
-                console.log(response);
-                $.ajax({
-                    url: MyAjax.ajaxurl,
-                    type: "POST",
-                    contentType: false,
-                    data: data_img,
-                    processData: false,
-                    cache: false,
-                    success: function (file_url) {
-                        $(".edit-item-message").html("Your item has been created");
-                    }
-                });
-
+                var filename = file.name;
+                if (filename != "") {
+                    var data_img = new FormData();
+                    data_img.append("featured_image", file);
+                    data_img.append("action", 'upload_thumbnail');
+                    data_img.append("post_id", post_id);
+                    console.log(response);
+                    $.ajax({
+                        url: MyAjax.ajaxurl,
+                        type: "POST",
+                        contentType: false,
+                        data: data_img,
+                        processData: false,
+                        cache: false,
+                        success: function (file_url) {
+                            $(".edit-item-message").html("Your item has been created");
+                        }
+                    });
+                }
 
 
             }
