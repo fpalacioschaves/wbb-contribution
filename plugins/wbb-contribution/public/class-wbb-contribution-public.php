@@ -62,10 +62,17 @@ class WBB_Contribution_Public {
         );
 
 
-        add_action('user_register', array($this, 'wbb_contribution_user_registration'), 10, 2);
-        add_action('wp_authenticate_user', array($this, 'wbb_contribution_user_pre_login'), 10, 2);
+        //add_action('user_register', array($this, 'wbb_contribution_user_registration'), 10, 2);
+        
+        
+        //add_action('wp_authenticate_user', array($this, 'wbb_contribution_user_pre_login'), 10, 2);
 
+        
+        
+        
         add_action('template_redirect', array($this, 'redirect_404'));
+        
+        
 
         // Shortcode for User Content Creation
 
@@ -207,6 +214,7 @@ class WBB_Contribution_Public {
             $user_last_name = get_user_meta($user_id, "last_name", true);
             $user_first_name = get_user_meta($user_id, "first_name", true);
             $user_email = $current_user->user_email;
+            $user_school = get_user_meta($user_id, "school", true);
 
             // Include con los valores normales del usuario
             include("views/my_account.php");
@@ -239,6 +247,7 @@ class WBB_Contribution_Public {
         $first_name = $_POST['first_name'];
         $last_name = $_POST['last_name'];
         $email = $_POST['email'];
+        $school = $_POST['school'];
         $user_id = $_POST['user_id'];
 
         // Actualizamos usuario
@@ -246,7 +255,7 @@ class WBB_Contribution_Public {
 
         update_user_meta($user_id, 'first_name', $first_name);
         update_user_meta($user_id, 'last_name', $last_name);
-        update_user_meta($user_id, 'last_name', $last_name);
+        update_user_meta($user_id, 'school', $school);
 
         // Y los campos extendidos
         $extended_fields = explode(",", $_POST['extended_user_fields']);

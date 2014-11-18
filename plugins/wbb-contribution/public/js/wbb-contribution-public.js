@@ -72,6 +72,7 @@
         var first_name = $("#first_name").val();
         var last_name = $("#last_name").val();
         var email = $("#email").val();
+        var school = $("#school").val();
         var user_id = $("#user_id").val();
         var extended_user_fields = new Array();
 
@@ -90,6 +91,7 @@
         user.append("first_name", first_name);
         user.append("last_name", last_name);
         user.append("email", email);
+        user.append("school", school);
         user.append("user_id", user_id);
         user.append("extended_user_fields", extended_user_fields);
 

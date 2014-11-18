@@ -12,5 +12,8 @@
 <label for="email">Email</label>
 <input type="text" id="email" name="email" value="<?php echo $user_email; ?>">
 <br>
+<label for="email">School</label>
+<input type="text" id="school" name="school" value="<?php echo $user_school; ?>">
+<br>
 
 
