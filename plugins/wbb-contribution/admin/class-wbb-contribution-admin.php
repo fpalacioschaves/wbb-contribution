@@ -79,15 +79,42 @@ class WBB_Contribution_Admin {
 
     public function register_contribution_menu_page() {
 
+//        add_menu_page(
+//                'WBB Contribution'
+//                , 'WBB Contribution'
+//                , 'manage_options'
+//                , 'wbb-contribution/admin/partials/wbb-contribution-admin-display.php'
+//                , ''
+//                , ''
+//                , 96
+//        );
         add_menu_page(
-                'WBB Contribution'
-                , 'WBB Contribution'
-                , 'manage_options'
-                , 'wbb-contribution/admin/partials/wbb-contribution-admin-display.php'
-                , ''
-                , ''
-                , 96
+                "WBB Contribution", "WBB Contribution", 'manage_options', "wbb-contribution", array(
+            $this,
+            'wbb_plugins_view'
+                )
         );
+        add_submenu_page(
+                "wbb-contribution", "User Login & Register", "User Login & Register", 'manage_options', 'wbb-contribution/admin/partials/login_tab.php'
+        );
+
+        add_submenu_page(
+                "wbb-contribution", "Import & Export", "Import & Export", 'manage_options', 'wbb-contribution/admin/partials/imp_exp_tab.php'
+        );
+
+        add_submenu_page(
+                "wbb-contribution", "User Panel", "User Panel", 'manage_options', 'wbb-contribution/admin/partials/user_panel_tab.php'
+        );
+
+        add_submenu_page(
+                "wbb-contribution", "Content module", "Content module", 'manage_options', 'wbb-contribution/admin/partials/content_tab.php'
+        );
+    }
+
+    public function wbb_plugins_view() {
+
+        echo "Cool Parent WBB Contribution Page";
+        include("/partials/initial_tab.php");
     }
 
     /**
@@ -297,14 +324,14 @@ class WBB_Contribution_Admin {
 
     public function add_user_id_column($columns) {
         $columns['enabled'] = 'User status';
-       
+
         return $columns;
     }
 
     public function show_user_id_column_content($value, $column_name, $user_id) {
         $user = get_userdata($user_id);
-        if ('enabled' == $column_name){
-            $estatus = get_user_meta( $user_id, "_wbb_user_active", true );
+        if ('enabled' == $column_name) {
+            $estatus = get_user_meta($user_id, "_wbb_user_active", true);
             $output .= $status;
         }
         return $output;

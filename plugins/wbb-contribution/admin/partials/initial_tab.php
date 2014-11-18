@@ -1,4 +1,5 @@
-<h3>Content module</h3>
+<h3>Webberty Contribution Plugin</h3>
+
 <p>
     Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
     ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
