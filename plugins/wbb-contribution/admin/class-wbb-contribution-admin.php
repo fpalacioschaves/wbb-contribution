@@ -331,7 +331,7 @@ class WBB_Contribution_Admin {
     public function show_user_id_column_content($value, $column_name, $user_id) {
         $user = get_userdata($user_id);
         if ('enabled' == $column_name) {
-            $estatus = get_user_meta($user_id, "_wbb_user_active", true);
+            $status = get_user_meta($user_id, "_wbb_user_active", true);
             $output .= $status;
         }
         return $output;
