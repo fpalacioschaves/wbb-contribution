@@ -113,8 +113,8 @@ class WBB_Contribution_Admin {
 
     public function wbb_plugins_view() {
 
-
-        include("/partials/initial_tab.php");
+        require_once plugin_dir_path ( dirname ( __FILE__ ) ) . 'admin/partials/initial_tab.php';
+        //include("/partials/initial_tab.php");
     }
 
     /**
