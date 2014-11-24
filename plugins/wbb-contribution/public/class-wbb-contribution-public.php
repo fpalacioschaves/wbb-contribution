@@ -732,10 +732,20 @@ class WBB_Contribution_Public {
         die();
     }
     
-    public function wbb_contribution_do_wp_login(){
-        
-        
-        
+    public function wbb_contribution_do_wp_login() {
+        $creds = array();
+        $creds['user_login'] = $_POST["username"];
+        $creds['user_password'] = $_POST["password"];
+//$creds['remember'] = true;
+        $user = wp_signon($creds, false);
+
+        if ($user->ID) {
+            $this->check_login_user($user);
+        } else {
+            echo "/login_error/";
+        }
+
+        die();
     }
     
 }
